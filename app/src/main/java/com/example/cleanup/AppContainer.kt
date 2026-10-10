@@ -5,9 +5,15 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.example.cleanup.data.db.AppDatabase
 import com.example.cleanup.data.media.MediaAccessRepository
 import com.example.cleanup.data.media.MediaStoreSource
+import com.example.cleanup.data.repo.DuplicatesRepository
 import com.example.cleanup.data.repo.MediaRepository
+import com.example.cleanup.data.repo.ReviewRepository
+import com.example.cleanup.deletion.DeletionCoordinator
+import com.example.cleanup.deletion.TrashRepository
+import com.example.cleanup.detection.ContentHasher
 import com.example.cleanup.settings.SettingsRepository
 import com.example.cleanup.worker.CatalogScanner
+import com.example.cleanup.worker.HashScanner
 import com.example.cleanup.worker.LibraryAutoUpdater
 import com.example.cleanup.worker.ScanScheduler
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +37,19 @@ class AppContainer(context: Context) {
     val mediaStoreSource = MediaStoreSource(appContext)
     val mediaRepository = MediaRepository(database.mediaDao(), database.scanDao())
 
+    val trashRepository = TrashRepository(database)
+    val reviewRepository = ReviewRepository(database)
+    val duplicatesRepository = DuplicatesRepository(database, trashRepository)
+    val deletionCoordinator = DeletionCoordinator(
+        db = database,
+        source = mediaStoreSource,
+        trash = trashRepository,
+        settings = settingsRepository,
+        access = mediaAccessRepository,
+    )
+
     val catalogScanner = CatalogScanner(mediaStoreSource, database)
+    val hashScanner = HashScanner(database, ContentHasher(appContext))
     val scanScheduler = ScanScheduler(appContext)
     val libraryAutoUpdater = LibraryAutoUpdater(
         context = appContext,

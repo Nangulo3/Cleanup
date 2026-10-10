@@ -142,4 +142,153 @@
     <string name="detail_folder">Carpeta</string>
     <string name="detail_type">Tipo</string>
     <string name="dimensions_format">%1$d × %2$d</string>
+
+    <!-- Fase 3: selección, papelera y eliminación -->
+    <string name="action_undo">Deshacer</string>
+    <string name="action_view">Ver</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_ok">Entendido</string>
+    <string name="action_select">Seleccionar</string>
+    <string name="selection_clear">Cancelar selección</string>
+    <string name="selection_all">Todo</string>
+    <plurals name="selected_count">
+        <item quantity="one">%1$s seleccionado</item>
+        <item quantity="many">%1$s seleccionados</item>
+        <item quantity="other">%1$s seleccionados</item>
+    </plurals>
+    <string name="type_photo">Foto</string>
+    <string name="type_video">Video</string>
+    <string name="tile_in_trash">en la Papelera de revisión</string>
+    <string name="grid_send_to_trash">Enviar a la papelera</string>
+    <string name="home_trash_card_summary">%1$s · %2$s marcados</string>
+
+    <string name="trash_still_on_device">Los archivos marcados siguen en tu teléfono. El espacio solo se libera cuando confirmes la eliminación y Android la complete.</string>
+    <string name="trash_row_details">%1$s · %2$s · %3$s</string>
+    <string name="trash_summary">%1$s · %2$s</string>
+    <string name="approx_size">≈ %1$s</string>
+    <string name="trash_waiting_system">Esperando la confirmación de Android…</string>
+    <string name="trash_unmark_selected">Quitar de la papelera</string>
+    <string name="trash_delete_selected">Eliminar</string>
+    <string name="trash_delete_permanently">Eliminar definitivamente</string>
+    <string name="trash_move_to_system_trash">Mover a la papelera del sistema</string>
+
+    <string name="confirm_delete_title">¿Eliminar definitivamente?</string>
+    <string name="confirm_delete_body">Se pedirá a Android que elimine %1$s (%2$s). Android mostrará su propia confirmación. Según tu versión de Android y tu app de galería, esto puede ser irreversible.</string>
+    <string name="confirm_trash_title">¿Mover a la papelera del sistema?</string>
+    <string name="confirm_trash_body">Se pedirá a Android que mueva %1$s (%2$s) a su papelera. Android los borrará solo en unos 30 días y el espacio se liberará entonces.</string>
+    <string name="confirm_limit_note">Por seguridad se envían como máximo %1$s elementos por vez. Repite la acción para el resto.</string>
+
+    <string name="report_title">Resultado</string>
+    <string name="report_deleted">Eliminados: %1$s</string>
+    <string name="report_trashed">Movidos a la papelera del sistema: %1$s</string>
+    <string name="report_freed">Espacio liberado (verificado): %1$s</string>
+    <string name="report_trash_space">Se liberarán unos %1$s cuando Android vacíe su papelera.</string>
+    <string name="report_missing">Ya no existían y se quitaron de la papelera: %1$s</string>
+    <string name="report_inaccessible">Sin acceso por el acceso parcial (siguen en la papelera): %1$s</string>
+    <string name="report_failed">Android no pudo eliminarlos (siguen en la papelera): %1$s</string>
+    <string name="report_cancelled">Cancelados: siguen en tu teléfono y en la papelera: %1$s</string>
+    <string name="report_unconfirmed">Sin confirmación de Android: siguen en la papelera: %1$s</string>
+    <string name="report_remaining">Pendientes por el límite de %2$s por vez: %1$s</string>
+
+    <plurals name="msg_marked">
+        <item quantity="one">%1$s elemento enviado a la Papelera de revisión</item>
+        <item quantity="many">%1$s elementos enviados a la Papelera de revisión</item>
+        <item quantity="other">%1$s elementos enviados a la Papelera de revisión</item>
+    </plurals>
+    <plurals name="msg_unmarked">
+        <item quantity="one">%1$s elemento quitado de la papelera</item>
+        <item quantity="many">%1$s elementos quitados de la papelera</item>
+        <item quantity="other">%1$s elementos quitados de la papelera</item>
+    </plurals>
+    <plurals name="msg_undo_mark">
+        <item quantity="one">Deshecho: %1$s elemento volvió a quedar sin marcar</item>
+        <item quantity="many">Deshecho: %1$s elementos volvieron a quedar sin marcar</item>
+        <item quantity="other">Deshecho: %1$s elementos volvieron a quedar sin marcar</item>
+    </plurals>
+    <plurals name="msg_undo_unmark">
+        <item quantity="one">Deshecho: %1$s elemento volvió a la papelera</item>
+        <item quantity="many">Deshecho: %1$s elementos volvieron a la papelera</item>
+        <item quantity="other">Deshecho: %1$s elementos volvieron a la papelera</item>
+    </plurals>
+    <plurals name="msg_missing_removed">
+        <item quantity="one">%1$s elemento ya no existía y se quitó de la papelera</item>
+        <item quantity="many">%1$s elementos ya no existían y se quitaron de la papelera</item>
+        <item quantity="other">%1$s elementos ya no existían y se quitaron de la papelera</item>
+    </plurals>
+    <string name="msg_nothing_to_undo">No hay nada que deshacer</string>
+    <string name="msg_request_failed">No se pudo preparar la solicitud de eliminación. Inténtalo de nuevo.</string>
+
+    <string name="viewer_mark">Marcar para eliminar</string>
+    <string name="viewer_unmark">Quitar de la papelera</string>
+    <string name="viewer_in_trash">En la Papelera de revisión. Sigue en tu teléfono hasta que confirmes la eliminación.</string>
+
+    <!-- Fase 4: Deslizar -->
+    <string name="swipe_total_progress">Revisados %1$s de %2$s</string>
+    <string name="swipe_resume">Reanudar: %1$s</string>
+    <string name="swipe_all_done">No queda nada por revisar. ¡Buen trabajo!</string>
+    <string name="swipe_month_done">Revisado · %1$s elementos</string>
+    <string name="swipe_month_pending">%1$s por revisar de %2$s</string>
+    <string name="swipe_no_date">Sin fecha</string>
+    <string name="swipe_keep">Conservar</string>
+    <string name="swipe_delete">Eliminar</string>
+    <string name="swipe_already_in_trash">Ya está en la papelera</string>
+    <string name="swipe_cannot_display">No se pudo mostrar este elemento, pero puedes decidir igual.</string>
+    <string name="swipe_item_missing">Este elemento ya no existe y se quitó de la lista.</string>
+    <string name="swipe_position">%1$s/%2$s</string>
+    <string name="swipe_more_options">Más opciones</string>
+    <string name="swipe_reset_month">Volver a revisar este mes</string>
+    <string name="swipe_reset_body">Todos los elementos del mes volverán a quedar sin revisar. La papelera y tus archivos no cambian.</string>
+    <string name="swipe_reset_confirm">Volver a revisar</string>
+    <string name="swipe_item_details">%1$s · %2$s</string>
+    <string name="swipe_month_complete_title">%1$s: revisión completa</string>
+    <string name="swipe_month_complete_body">Conservados: %1$s · Marcados para eliminar: %2$s</string>
+    <string name="swipe_next_month">Seguir con %1$s</string>
+    <string name="swipe_open_trash">Ver la papelera (%1$s)</string>
+    <string name="swipe_back_to_months">Volver a los meses</string>
+    <string name="msg_undo_review">Deshecho: se revirtió la última decisión de Deslizar</string>
+
+    <!-- Fase 5: duplicados exactos -->
+    <string name="home_scan_hash">Buscando duplicados: %1$s de %2$s archivos</string>
+    <string name="duplicates_none_short">Sin duplicados</string>
+    <string name="duplicates_surplus_size">%1$s en copias sobrantes</string>
+    <string name="duplicates_subtitle">%1$s · %2$s en copias sobrantes</string>
+    <string name="duplicates_empty_title">No se encontraron duplicados exactos</string>
+    <string name="duplicates_empty_body">Se comparó el contenido de los archivos que tienen el mismo tamaño y no hay copias idénticas.</string>
+    <string name="duplicates_info">Estos archivos son idénticos byte a byte. La app sugiere qué copia conservar; puedes elegir otra. Nada se elimina hasta que lo confirmes en la papelera.</string>
+    <string name="duplicates_group_title">%1$s copias idénticas · %2$s cada una</string>
+    <string name="duplicates_keeper_in_trash">La copia a conservar está en la papelera. Quítala de la papelera o elige otra para poder marcar las sobrantes.</string>
+    <string name="duplicates_group_done">Sobrantes ya en la papelera</string>
+    <string name="duplicates_keep_label">Conservar</string>
+    <string name="duplicates_surplus_label">Copia</string>
+    <string name="duplicates_keep_this">Conservar esta</string>
+    <string name="keep_reason_user">Elegida por ti.</string>
+    <string name="keep_reason_folder">Sugerencia: está en la carpeta de la cámara o de fotos; las demás están en descargas, chats u otras carpetas.</string>
+    <string name="keep_reason_capture_date">Sugerencia: conserva la fecha de captura y las demás no.</string>
+    <string name="keep_reason_oldest">Sugerencia: es la que llegó primero al teléfono (probablemente la original).</string>
+    <string name="keep_reason_default">Ninguna copia destaca: se sugiere una de forma estable. Puedes elegir otra.</string>
+    <plurals name="duplicate_groups_count">
+        <item quantity="one">%1$s grupo</item>
+        <item quantity="many">%1$s grupos</item>
+        <item quantity="other">%1$s grupos</item>
+    </plurals>
+    <plurals name="duplicates_mark_all">
+        <item quantity="one">Marcar %1$s copia sobrante</item>
+        <item quantity="many">Marcar %1$s copias sobrantes</item>
+        <item quantity="other">Marcar %1$s copias sobrantes</item>
+    </plurals>
+    <plurals name="duplicates_mark_group">
+        <item quantity="one">Marcar %1$s sobrante</item>
+        <item quantity="many">Marcar %1$s sobrantes</item>
+        <item quantity="other">Marcar %1$s sobrantes</item>
+    </plurals>
+    <plurals name="duplicates_skipped_groups">
+        <item quantity="one">%1$s grupo omitido porque su copia a conservar está en la papelera</item>
+        <item quantity="many">%1$s grupos omitidos porque su copia a conservar está en la papelera</item>
+        <item quantity="other">%1$s grupos omitidos porque su copia a conservar está en la papelera</item>
+    </plurals>
+    <plurals name="confirm_all_copies_warning">
+        <item quantity="one">Atención: incluye todas las copias de %1$s grupo de duplicados. No quedará ninguna copia de esos archivos.</item>
+        <item quantity="many">Atención: incluye todas las copias de %1$s grupos de duplicados. No quedará ninguna copia de esos archivos.</item>
+        <item quantity="other">Atención: incluye todas las copias de %1$s grupos de duplicados. No quedará ninguna copia de esos archivos.</item>
+    </plurals>
 </resources>

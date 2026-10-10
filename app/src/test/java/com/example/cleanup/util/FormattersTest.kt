@@ -61,4 +61,15 @@ class FormattersTest {
     fun `duraciones largas incluyen horas`() {
         assertEquals("1:02:03", Formatters.duration(3_723_000))
     }
+
+    @Test
+    fun `nombre de mes con mayuscula inicial`() {
+        assertEquals("Octubre 2026", Formatters.month(202610, Locale.forLanguageTag("es")))
+        assertEquals("January 2025", Formatters.month(202501, Locale.US))
+    }
+
+    @Test
+    fun `mes sin fecha devuelve null`() {
+        assertEquals(null, Formatters.month(0, us))
+    }
 }

@@ -27,6 +27,10 @@ data object SettingsKey : NavKey
 @Serializable
 data class CategoryKey(val category: Category) : NavKey
 
+/** Revisión de un mes en Deslizar (monthKey = yyyyMM; 0 = sin fecha). */
+@Serializable
+data class SwipeReviewKey(val monthKey: Int) : NavKey
+
 /** Visor de un elemento por su ID de MediaStore. */
 @Serializable
 data class MediaViewerKey(val mediaId: Long) : NavKey

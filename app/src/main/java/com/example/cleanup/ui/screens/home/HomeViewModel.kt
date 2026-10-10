@@ -2,8 +2,12 @@ package com.example.cleanup.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cleanup.data.db.dao.TrashSummary
 import com.example.cleanup.data.db.dao.TypeTotals
+import com.example.cleanup.data.repo.DuplicateSummary
+import com.example.cleanup.data.repo.DuplicatesRepository
 import com.example.cleanup.data.repo.MediaRepository
+import com.example.cleanup.deletion.TrashRepository
 import com.example.cleanup.domain.model.MediaType
 import com.example.cleanup.worker.ScanRunState
 import com.example.cleanup.worker.ScanScheduler
@@ -27,6 +31,8 @@ data class HomeUiState(
     val videos: TypeSummary = TypeSummary(),
     val lastScanAt: Long? = null,
     val run: ScanRunState = ScanRunState.Idle,
+    val trash: TrashSummary = TrashSummary(0, 0, 0),
+    val duplicates: DuplicateSummary = DuplicateSummary(),
 ) {
     val totalKnownBytes: Long get() = photos.knownBytes + videos.knownBytes
     val totalUnknownSizeCount: Int get() = photos.unknownSizeCount + videos.unknownSizeCount
@@ -36,13 +42,17 @@ data class HomeUiState(
 class HomeViewModel(
     repository: MediaRepository,
     private val scanScheduler: ScanScheduler,
+    trashRepository: TrashRepository,
+    duplicatesRepository: DuplicatesRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> = combine(
         repository.typeTotals,
         repository.scanState,
         scanScheduler.state,
-    ) { totals, scanState, run ->
+        trashRepository.summary,
+        duplicatesRepository.summary,
+    ) { totals, scanState, run, trash, duplicates ->
         HomeUiState(
             isLoading = false,
             hasScanned = scanState?.lastCompletedAt != null,
@@ -50,6 +60,8 @@ class HomeViewModel(
             videos = totals.summaryFor(MediaType.VIDEO),
             lastScanAt = scanState?.lastCompletedAt,
             run = run,
+            trash = trash,
+            duplicates = duplicates,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 

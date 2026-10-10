@@ -3,6 +3,8 @@ package com.example.cleanup.ui.navigation
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -23,16 +25,21 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.cleanup.LocalAppContainer
+import com.example.cleanup.data.db.dao.TrashSummary
+import com.example.cleanup.domain.model.Category
 import com.example.cleanup.domain.model.MediaAccess
+import com.example.cleanup.ui.screens.duplicates.DuplicatesScreen
 import com.example.cleanup.ui.screens.home.HomeScreen
 import com.example.cleanup.ui.screens.media.MediaGridScreen
 import com.example.cleanup.ui.screens.permission.MediaPermissionRequester
 import com.example.cleanup.ui.screens.permission.PermissionScreen
 import com.example.cleanup.ui.screens.permission.rememberMediaPermissionRequester
 import com.example.cleanup.ui.screens.settings.SettingsScreen
+import com.example.cleanup.ui.screens.swipe.SwipeReviewScreen
 import com.example.cleanup.ui.screens.swipe.SwipeScreen
 import com.example.cleanup.ui.screens.trash.TrashScreen
 import com.example.cleanup.ui.screens.viewer.MediaViewerScreen
+import com.example.cleanup.util.Formatters
 
 /**
  * Raíz de la interfaz: decide entre la pantalla de permisos y la navegación principal,
@@ -60,6 +67,8 @@ private fun MainNavigation(access: MediaAccess, requester: MediaPermissionReques
     // El historial empieza en Inicio. Navigation 3 lo guarda y restaura automáticamente.
     val backStack = rememberNavBackStack(HomeKey)
     val current = backStack.lastOrNull()
+    val trashSummary by LocalAppContainer.current.trashRepository.summary
+        .collectAsStateWithLifecycle(initialValue = TrashSummary(0, 0, 0))
     val showBottomBar = TopLevelDestinations.any { it.key == current }
 
     Scaffold(
@@ -72,7 +81,12 @@ private fun MainNavigation(access: MediaAccess, requester: MediaPermissionReques
                         NavigationBarItem(
                             selected = current == destination.key,
                             onClick = { backStack.selectTopLevel(destination.key) },
-                            icon = { Icon(destination.icon, contentDescription = null) },
+                            icon = {
+                                val count = if (destination.key == TrashKey) trashSummary.itemCount else 0
+                                BadgedBox(badge = { if (count > 0) Badge { Text(Formatters.count(count)) } }) {
+                                    Icon(destination.icon, contentDescription = null)
+                                }
+                            },
                             label = { Text(stringResource(destination.labelRes)) },
                         )
                     }
@@ -100,11 +114,17 @@ private fun MainNavigation(access: MediaAccess, requester: MediaPermissionReques
                     )
                 }
                 entry<CategoryKey> { key ->
-                    MediaGridScreen(
-                        category = key.category,
-                        onBack = { backStack.removeLastOrNull() },
-                        onOpenItem = { id -> backStack.add(MediaViewerKey(id)) },
-                    )
+                    when (key.category) {
+                        Category.DUPLICATES -> DuplicatesScreen(
+                            onBack = { backStack.removeLastOrNull() },
+                            onOpenItem = { id -> backStack.add(MediaViewerKey(id)) },
+                        )
+                        else -> MediaGridScreen(
+                            category = key.category,
+                            onBack = { backStack.removeLastOrNull() },
+                            onOpenItem = { id -> backStack.add(MediaViewerKey(id)) },
+                        )
+                    }
                 }
                 entry<MediaViewerKey> { key ->
                     MediaViewerScreen(
@@ -112,8 +132,25 @@ private fun MainNavigation(access: MediaAccess, requester: MediaPermissionReques
                         onBack = { backStack.removeLastOrNull() },
                     )
                 }
-                entry<SwipeKey> { SwipeScreen() }
-                entry<TrashKey> { TrashScreen() }
+                entry<SwipeKey> {
+                    SwipeScreen(onOpenMonth = { month -> backStack.add(SwipeReviewKey(month)) })
+                }
+                entry<SwipeReviewKey> { key ->
+                    SwipeReviewScreen(
+                        monthKey = key.monthKey,
+                        onBack = { backStack.removeLastOrNull() },
+                        onOpenItem = { id -> backStack.add(MediaViewerKey(id)) },
+                        onOpenTrash = { backStack.add(TrashKey) },
+                        onOpenMonth = { month ->
+                            // Cambia de mes sin apilar revisiones: Atrás vuelve a la lista de meses.
+                            backStack.removeLastOrNull()
+                            backStack.add(SwipeReviewKey(month))
+                        },
+                    )
+                }
+                entry<TrashKey> {
+                    TrashScreen(onOpenItem = { id -> backStack.add(MediaViewerKey(id)) })
+                }
                 entry<SettingsKey> {
                     SettingsScreen(access = access, onExpandAccess = requester::request)
                 }

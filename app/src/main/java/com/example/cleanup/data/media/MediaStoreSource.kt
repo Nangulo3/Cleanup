@@ -1,11 +1,13 @@
 package com.example.cleanup.data.media
 
+import android.app.PendingIntent
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
 import android.provider.MediaStore
+import com.example.cleanup.domain.model.MediaType
 import com.example.cleanup.domain.scan.VolumeSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
@@ -93,6 +95,45 @@ class MediaStoreSource(context: Context) {
                 }
             }
             ids
+        }
+
+    /**
+     * De los [ids] dados (todos del mismo tipo), devuelve los que siguen visibles en MediaStore
+     * en cualquier volumen. Los que están en la papelera del sistema cuentan como no visibles.
+     */
+    suspend fun existingIds(mediaType: MediaType, ids: List<Long>): Set<Long> =
+        withContext(Dispatchers.IO) {
+            val collection = if (mediaType == MediaType.VIDEO) Collection.VIDEO else Collection.IMAGES
+            val uri = collectionUri(MediaStore.VOLUME_EXTERNAL, collection)
+            val found = HashSet<Long>()
+            for (chunk in ids.distinct().chunked(500)) {
+                ensureActive()
+                val placeholders = chunk.joinToString(",") { "?" }
+                resolver.query(
+                    uri,
+                    arrayOf(BaseColumns._ID),
+                    "${BaseColumns._ID} IN ($placeholders)",
+                    chunk.map { it.toString() }.toTypedArray(),
+                    null,
+                )?.use { cursor ->
+                    val idColumn = cursor.getColumnIndexOrThrow(BaseColumns._ID)
+                    while (cursor.moveToNext()) found += cursor.getLong(idColumn)
+                }
+            }
+            found
+        }
+
+    /**
+     * Crea la solicitud que Android mostrará al usuario para confirmar la eliminación.
+     * - [moveToTrash] = false: createDeleteRequest (borrado definitivo).
+     * - [moveToTrash] = true: createTrashRequest (papelera del sistema, ~30 días).
+     * La app no borra nada por sí misma: solo Android, y solo si el usuario acepta.
+     */
+    fun createDeletionRequest(uris: List<Uri>, moveToTrash: Boolean): PendingIntent =
+        if (moveToTrash) {
+            MediaStore.createTrashRequest(resolver, uris, true)
+        } else {
+            MediaStore.createDeleteRequest(resolver, uris)
         }
 
     private suspend fun query(

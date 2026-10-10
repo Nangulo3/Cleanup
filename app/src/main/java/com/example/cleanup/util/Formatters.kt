@@ -1,6 +1,7 @@
 package com.example.cleanup.util
 
 import java.time.Instant
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -57,4 +58,16 @@ object Formatters {
         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
             .withLocale(locale)
             .format(Instant.ofEpochMilli(epochMs).atZone(zone))
+
+    /**
+     * Nombre del mes a partir de una clave yyyyMM. Ej.: 202610 → "Octubre 2026".
+     * Devuelve null para la clave 0 (elementos sin fecha); la interfaz pone su propio texto.
+     */
+    fun month(monthKey: Int, locale: Locale = Locale.getDefault()): String? {
+        if (monthKey <= 0) return null
+        val yearMonth = YearMonth.of(monthKey / 100, monthKey % 100)
+        return DateTimeFormatter.ofPattern("LLLL yyyy", locale)
+            .format(yearMonth)
+            .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
+    }
 }

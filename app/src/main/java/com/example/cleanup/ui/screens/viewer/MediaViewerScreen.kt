@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -56,7 +58,7 @@ import com.example.cleanup.util.Formatters
 fun MediaViewerScreen(mediaId: Long, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val container = LocalAppContainer.current
     val viewModel: MediaViewerViewModel = viewModel {
-        MediaViewerViewModel(mediaId, container.mediaRepository)
+        MediaViewerViewModel(mediaId, container.mediaRepository, container.trashRepository)
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val title = (state as? MediaViewerUiState.Loaded)?.item?.displayName
@@ -88,6 +90,8 @@ fun MediaViewerScreen(mediaId: Long, onBack: () -> Unit, modifier: Modifier = Mo
             )
             is MediaViewerUiState.Loaded -> ViewerContent(
                 item = current.item,
+                isPending = current.isPending,
+                onToggleMark = viewModel::toggleMark,
                 modifier = Modifier.padding(padding),
             )
         }
@@ -95,7 +99,12 @@ fun MediaViewerScreen(mediaId: Long, onBack: () -> Unit, modifier: Modifier = Mo
 }
 
 @Composable
-private fun ViewerContent(item: MediaItemEntity, modifier: Modifier = Modifier) {
+private fun ViewerContent(
+    item: MediaItemEntity,
+    isPending: Boolean,
+    onToggleMark: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     val uri = remember(item.contentUri) { item.contentUri.toUri() }
     val openExternally = {
@@ -142,6 +151,8 @@ private fun ViewerContent(item: MediaItemEntity, modifier: Modifier = Modifier) 
         }
 
         Column(Modifier.padding(16.dp)) {
+            MarkForDeletionSection(isPending = isPending, onToggleMark = onToggleMark)
+            Spacer(Modifier.height(16.dp))
             val unknown = stringResource(R.string.unknown)
             DetailRow(stringResource(R.string.detail_name), item.displayName ?: unknown)
             DetailRow(
@@ -175,6 +186,44 @@ private fun ViewerContent(item: MediaItemEntity, modifier: Modifier = Modifier) 
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.viewer_open_external))
             }
+        }
+    }
+}
+
+/** Marcar/desmarcar para eliminar, con el recordatorio de que el archivo sigue en el teléfono. */
+@Composable
+private fun MarkForDeletionSection(isPending: Boolean, onToggleMark: () -> Unit) {
+    if (isPending) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                AppIcons.Delete,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(R.string.viewer_in_trash),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = onToggleMark, modifier = Modifier.fillMaxWidth().height(48.dp)) {
+            Text(stringResource(R.string.viewer_unmark))
+        }
+    } else {
+        FilledTonalButton(
+            onClick = onToggleMark,
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+            ),
+        ) {
+            Icon(AppIcons.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(stringResource(R.string.viewer_mark))
         }
     }
 }

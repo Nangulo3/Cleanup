@@ -60,7 +60,12 @@ fun HomeScreen(
 ) {
     val container = LocalAppContainer.current
     val viewModel: HomeViewModel = viewModel {
-        HomeViewModel(container.mediaRepository, container.scanScheduler)
+        HomeViewModel(
+            container.mediaRepository,
+            container.scanScheduler,
+            container.trashRepository,
+            container.duplicatesRepository,
+        )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -91,7 +96,17 @@ fun HomeScreen(
             item(span = { GridItemSpan(maxLineSpan) }) {
                 NavigationRowCard(
                     title = stringResource(R.string.home_trash_card_title),
-                    subtitle = stringResource(R.string.home_trash_card_empty),
+                    subtitle = if (state.trash.itemCount == 0) {
+                        stringResource(R.string.home_trash_card_empty)
+                    } else {
+                        stringResource(
+                            R.string.home_trash_card_summary,
+                            pluralStringResource(
+                                R.plurals.items_count, state.trash.itemCount, Formatters.count(state.trash.itemCount)
+                            ),
+                            sizeText(state.trash.knownBytes, state.trash.unknownSizeCount),
+                        )
+                    },
                     icon = AppIcons.Delete,
                     onClick = onOpenTrash,
                 )
@@ -112,6 +127,10 @@ fun HomeScreen(
 
 @Composable
 private fun CategoryTile(category: Category, state: HomeUiState, onClick: () -> Unit) {
+    if (category == Category.DUPLICATES) {
+        DuplicatesTile(state, onClick)
+        return
+    }
     val summary = when (category) {
         Category.PHOTOS -> state.photos
         Category.VIDEOS -> state.videos
@@ -149,6 +168,36 @@ private fun CategoryTile(category: Category, state: HomeUiState, onClick: () -> 
         secondaryLine = secondary,
         onClick = onClick,
         enabled = enabled,
+    )
+}
+
+/** Tarjeta de Duplicados: grupos y espacio que ocupan las copias sobrantes. */
+@Composable
+private fun DuplicatesTile(state: HomeUiState, onClick: () -> Unit) {
+    val dup = state.duplicates
+    val primary: String
+    val secondary: String?
+    when {
+        !state.hasScanned -> {
+            primary = stringResource(R.string.category_not_scanned)
+            secondary = null
+        }
+        dup.groupCount == 0 -> {
+            primary = stringResource(R.string.duplicates_none_short)
+            secondary = null
+        }
+        else -> {
+            primary = pluralStringResource(R.plurals.duplicate_groups_count, dup.groupCount, Formatters.count(dup.groupCount))
+            secondary = stringResource(R.string.duplicates_surplus_size, Formatters.bytes(dup.surplusBytes))
+        }
+    }
+    CategoryCard(
+        title = stringResource(Category.DUPLICATES.titleRes()),
+        icon = Category.DUPLICATES.icon(),
+        primaryLine = primary,
+        secondaryLine = secondary,
+        onClick = onClick,
+        enabled = state.hasScanned,
     )
 }
 
@@ -235,6 +284,11 @@ private fun ScanStatus(state: HomeUiState) {
                     R.string.home_scan_catalog, Formatters.count(run.progress.processed)
                 )
                 ScanPhase.RECONCILE -> stringResource(R.string.home_scan_reconcile)
+                ScanPhase.HASH_QUICK, ScanPhase.HASH_FULL -> stringResource(
+                    R.string.home_scan_hash,
+                    Formatters.count(run.progress.processed),
+                    Formatters.count(run.progress.total ?: 0),
+                )
             }
             Text(text, style = textStyle, color = textColor)
             Spacer(Modifier.height(8.dp))

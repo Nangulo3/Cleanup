@@ -10,6 +10,12 @@ enum class ScanPhase {
 
     /** Comparando IDs para detectar elementos nuevos o eliminados fuera de la app. */
     RECONCILE,
+
+    /** Huella rápida de archivos del mismo tamaño (posibles duplicados). */
+    HASH_QUICK,
+
+    /** SHA-256 completo de los que coinciden en la huella rápida. */
+    HASH_FULL,
 }
 
 /**

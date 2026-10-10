@@ -27,7 +27,12 @@ class ScanWorker(appContext: Context, params: WorkerParameters) : CoroutineWorke
         }
         val forceFull = inputData.getBoolean(KEY_FORCE_FULL, false)
         return try {
+            // 1. Catálogo (metadatos de MediaStore).
             container.catalogScanner.run(forceFull = forceFull, access = access) { progress ->
+                setProgress(progress.toData())
+            }
+            // 2. Huellas de contenido para duplicados exactos (solo lo nuevo o cambiado).
+            container.hashScanner.run(retryErrors = forceFull) { progress ->
                 setProgress(progress.toData())
             }
             Result.success()
