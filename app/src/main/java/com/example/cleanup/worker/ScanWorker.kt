@@ -1,0 +1,52 @@
+package com.example.cleanup.worker
+
+import android.content.Context
+import android.util.Log
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
+import androidx.work.workDataOf
+import com.example.cleanup.BuildConfig
+import com.example.cleanup.CleanupApp
+import com.example.cleanup.domain.model.MediaAccess
+import kotlinx.coroutines.CancellationException
+
+/**
+ * Trabajo de WorkManager que ejecuta el escaneo. WorkManager lo mantiene vivo aunque el usuario
+ * salga de la pantalla y lo reintenta si el sistema lo detiene; como cada lote se guarda al
+ * momento, al reanudar no se pierde lo ya leído.
+ */
+class ScanWorker(appContext: Context, params: WorkerParameters) : CoroutineWorker(appContext, params) {
+
+    override suspend fun doWork(): Result {
+        val container = (applicationContext as CleanupApp).container
+        val access = container.mediaAccessRepository.currentAccess()
+        if (access == MediaAccess.DENIED) {
+            // Sin permiso MediaStore devolvería una lista vacía y la conciliación borraría
+            // todo el catálogo local; por eso no se escanea.
+            return Result.failure(workDataOf(KEY_FAILURE to ScanFailure.PERMISSION.name))
+        }
+        val forceFull = inputData.getBoolean(KEY_FORCE_FULL, false)
+        return try {
+            container.catalogScanner.run(forceFull = forceFull, access = access) { progress ->
+                setProgress(progress.toData())
+            }
+            Result.success()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: SecurityException) {
+            container.mediaRepository.recordScanError(ScanFailure.PERMISSION.name)
+            Result.failure(workDataOf(KEY_FAILURE to ScanFailure.PERMISSION.name))
+        } catch (e: Exception) {
+            // En producción no se registran nombres de archivo ni URIs; solo el tipo de error.
+            if (BuildConfig.DEBUG) Log.e(TAG, "Fallo en el escaneo", e)
+            container.mediaRepository.recordScanError(ScanFailure.UNEXPECTED.name)
+            Result.failure(workDataOf(KEY_FAILURE to ScanFailure.UNEXPECTED.name))
+        }
+    }
+
+    companion object {
+        const val KEY_FORCE_FULL = "force_full"
+        const val KEY_FAILURE = "failure"
+        private const val TAG = "ScanWorker"
+    }
+}

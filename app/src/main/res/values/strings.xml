@@ -1,0 +1,145 @@
+<resources>
+    <string name="app_name">Cleanup</string>
+
+    <!-- Genéricos -->
+    <string name="unknown">Desconocido</string>
+    <string name="loading">Cargando…</string>
+    <string name="back">Atrás</string>
+    <string name="not_available_value">—</string>
+
+    <!-- Navegación -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_swipe">Deslizar</string>
+    <string name="nav_trash">Papelera</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Inicio -->
+    <string name="home_title">Tu almacenamiento</string>
+    <string name="home_photos">Fotos</string>
+    <string name="home_videos">Videos</string>
+    <string name="home_total_size">Tamaño conocido</string>
+    <string name="home_last_scan">Último análisis: %1$s</string>
+    <string name="home_never_scanned">Aún no has analizado tu biblioteca</string>
+    <string name="home_analyze">Analizar</string>
+    <string name="home_categories">Categorías</string>
+    <string name="home_trash_card_title">Papelera de revisión</string>
+    <string name="home_trash_card_empty">No hay elementos marcados para eliminar</string>
+
+    <!-- Categorías -->
+    <string name="category_duplicates">Duplicados</string>
+    <string name="category_similar_photos">Fotos similares</string>
+    <string name="category_similar_screenshots">Capturas similares</string>
+    <string name="category_similar_videos">Videos similares</string>
+    <string name="category_other_screenshots">Otras capturas</string>
+    <string name="category_photos">Fotos</string>
+    <string name="category_videos">Videos</string>
+    <string name="category_chat_photos">Fotos de chat</string>
+    <string name="category_not_scanned">Sin analizar</string>
+
+    <!-- Permisos -->
+    <string name="permission_title">Acceso a tus fotos y videos</string>
+    <string name="permission_body">Cleanup analiza tus fotos y videos directamente en este teléfono para encontrar duplicados, fotos parecidas y capturas. Nada se sube a internet y no hay cuentas.</string>
+    <string name="permission_scope">Solo se pide acceso a fotos y videos. Nada se elimina sin tu confirmación.</string>
+    <string name="permission_grant">Permitir acceso</string>
+    <string name="permission_retry">Intentar de nuevo</string>
+    <string name="permission_open_settings">Abrir ajustes de la app</string>
+    <string name="permission_denied">Sin este permiso la app no puede ver tu biblioteca.</string>
+    <string name="permission_denied_permanently">Android ya no muestra la solicitud. Para continuar, activa el permiso de Fotos y videos en los ajustes de la app y vuelve aquí.</string>
+
+    <!-- Acceso parcial -->
+    <string name="partial_access_title">Acceso parcial</string>
+    <string name="partial_access_body">Solo se analizan las fotos y videos que elegiste. El resto de tu biblioteca no aparece en los resultados.</string>
+    <string name="partial_access_expand">Ampliar acceso</string>
+
+    <!-- Deslizar -->
+    <string name="swipe_title">Deslizar</string>
+    <string name="swipe_empty_title">Nada para revisar todavía</string>
+    <string name="swipe_empty_body">Analiza tu biblioteca desde Inicio para revisar tus fotos y videos mes a mes.</string>
+
+    <!-- Papelera -->
+    <string name="trash_title">Papelera de revisión</string>
+    <string name="trash_empty_title">La papelera está vacía</string>
+    <string name="trash_empty_body">Cuando marques fotos o videos para eliminar aparecerán aquí. Seguirán en tu teléfono hasta que confirmes la eliminación definitiva.</string>
+
+    <!-- Ajustes -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_section_appearance">Apariencia</string>
+    <string name="theme_system">Según el sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="settings_section_deletion">Eliminación</string>
+    <string name="deletion_mode_permanent">Eliminar definitivamente</string>
+    <string name="deletion_mode_permanent_desc">Android borra los archivos y el espacio se libera de inmediato. Puede ser irreversible.</string>
+    <string name="deletion_mode_trash">Mover a la papelera del sistema</string>
+    <string name="deletion_mode_trash_desc">Android los guarda unos 30 días y luego los borra. El espacio se libera cuando esa papelera se vacía.</string>
+    <string name="settings_irreversible_warning">La eliminación final puede ser irreversible según tu versión de Android y tu app de galería.</string>
+    <string name="settings_section_access">Acceso a fotos y videos</string>
+    <string name="access_full">Acceso completo</string>
+    <string name="access_partial">Acceso parcial: solo los elementos que elegiste</string>
+    <string name="access_denied">Sin acceso</string>
+    <string name="settings_section_privacy">Privacidad</string>
+    <string name="settings_privacy_body">Todo el análisis ocurre en este teléfono. La app no tiene cuentas, anuncios ni servidores, y no envía fotos, videos, nombres de archivo ni metadatos a internet.</string>
+    <string name="settings_section_about">Acerca de</string>
+    <string name="settings_version">Versión %1$s</string>
+
+    <!-- Fase 2: análisis y catálogo -->
+    <string name="home_update">Actualizar análisis</string>
+    <string name="home_scan_queued">Preparando el análisis…</string>
+    <string name="home_scan_catalog">Leyendo tu biblioteca: %1$s elementos</string>
+    <string name="home_scan_reconcile">Comprobando cambios en la biblioteca…</string>
+    <string name="home_scan_failed">El último análisis no terminó: %1$s</string>
+    <string name="scan_error_permission">falta el permiso de fotos y videos.</string>
+    <string name="scan_error_unexpected">ocurrió un error inesperado. Inténtalo de nuevo.</string>
+    <string name="category_not_available">Aún no disponible</string>
+    <plurals name="photos_count">
+        <item quantity="one">%1$s foto</item>
+        <item quantity="many">%1$s fotos</item>
+        <item quantity="other">%1$s fotos</item>
+    </plurals>
+    <plurals name="videos_count">
+        <item quantity="one">%1$s video</item>
+        <item quantity="many">%1$s videos</item>
+        <item quantity="other">%1$s videos</item>
+    </plurals>
+    <plurals name="items_count">
+        <item quantity="one">%1$s elemento</item>
+        <item quantity="many">%1$s elementos</item>
+        <item quantity="other">%1$s elementos</item>
+    </plurals>
+    <plurals name="unknown_size_count">
+        <item quantity="one">%1$s con tamaño desconocido</item>
+        <item quantity="many">%1$s con tamaño desconocido</item>
+        <item quantity="other">%1$s con tamaño desconocido</item>
+    </plurals>
+
+    <!-- Cuadrícula -->
+    <string name="grid_subtitle">%1$s · %2$s</string>
+    <string name="grid_empty_title">No hay elementos</string>
+    <string name="grid_empty_photos">No se encontraron fotos a las que la app tenga acceso.</string>
+    <string name="grid_empty_videos">No se encontraron videos a los que la app tenga acceso.</string>
+    <string name="sort">Ordenar</string>
+    <string name="sort_date_desc">Más recientes primero</string>
+    <string name="sort_date_asc">Más antiguos primero</string>
+    <string name="sort_size_desc">Más grandes primero</string>
+    <string name="sort_name_asc">Por nombre</string>
+    <string name="tile_photo_desc">Foto del %1$s</string>
+    <string name="tile_video_desc">Video de %1$s, del %2$s</string>
+    <string name="tile_no_date">sin fecha</string>
+    <string name="action_open">Abrir</string>
+
+    <!-- Visor -->
+    <string name="viewer_item_fallback">Elemento</string>
+    <string name="viewer_missing_title">Este elemento ya no está disponible</string>
+    <string name="viewer_missing_body">Puede que se haya eliminado o movido desde otra app, o que la app ya no tenga acceso a él.</string>
+    <string name="viewer_open_external">Abrir con otra app</string>
+    <string name="viewer_play">Reproducir video</string>
+    <string name="viewer_no_app">No hay ninguna app para abrir este archivo.</string>
+    <string name="detail_name">Nombre</string>
+    <string name="detail_date">Fecha</string>
+    <string name="detail_size">Tamaño</string>
+    <string name="detail_dimensions">Dimensiones</string>
+    <string name="detail_duration">Duración</string>
+    <string name="detail_folder">Carpeta</string>
+    <string name="detail_type">Tipo</string>
+    <string name="dimensions_format">%1$d × %2$d</string>
+</resources>
