@@ -1,0 +1,242 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "c2547885924830d62fd79ffaae858dbb",
+    "entities": [
+      {
+        "tableName": "media_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `mediaType` TEXT NOT NULL, `contentUri` TEXT NOT NULL, `volumeName` TEXT NOT NULL, `displayName` TEXT, `mimeType` TEXT, `relativePath` TEXT, `bucketName` TEXT, `sizeBytes` INTEGER, `width` INTEGER, `height` INTEGER, `orientation` INTEGER, `durationMs` INTEGER, `dateTakenMs` INTEGER, `dateAddedMs` INTEGER, `dateModifiedMs` INTEGER, `generationModified` INTEGER, `sortDateMs` INTEGER NOT NULL, `monthKey` INTEGER NOT NULL, `catalogedAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mediaType",
+            "columnName": "mediaType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentUri",
+            "columnName": "contentUri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "volumeName",
+            "columnName": "volumeName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mimeType",
+            "columnName": "mimeType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "relativePath",
+            "columnName": "relativePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "bucketName",
+            "columnName": "bucketName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "sizeBytes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "width",
+            "columnName": "width",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "orientation",
+            "columnName": "orientation",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "durationMs",
+            "columnName": "durationMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "dateTakenMs",
+            "columnName": "dateTakenMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "dateAddedMs",
+            "columnName": "dateAddedMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "dateModifiedMs",
+            "columnName": "dateModifiedMs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "generationModified",
+            "columnName": "generationModified",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sortDateMs",
+            "columnName": "sortDateMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "monthKey",
+            "columnName": "monthKey",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "catalogedAt",
+            "columnName": "catalogedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_media_items_mediaType_sortDateMs",
+            "unique": false,
+            "columnNames": [
+              "mediaType",
+              "sortDateMs"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_media_items_mediaType_sortDateMs` ON `${TABLE_NAME}` (`mediaType`, `sortDateMs`)"
+          },
+          {
+            "name": "index_media_items_monthKey",
+            "unique": false,
+            "columnNames": [
+              "monthKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_media_items_monthKey` ON `${TABLE_NAME}` (`monthKey`)"
+          },
+          {
+            "name": "index_media_items_sizeBytes",
+            "unique": false,
+            "columnNames": [
+              "sizeBytes"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_media_items_sizeBytes` ON `${TABLE_NAME}` (`sizeBytes`)"
+          }
+        ]
+      },
+      {
+        "tableName": "volume_state",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`volumeName` TEXT NOT NULL, `mediaStoreVersion` TEXT NOT NULL, `lastGeneration` INTEGER NOT NULL, PRIMARY KEY(`volumeName`))",
+        "fields": [
+          {
+            "fieldPath": "volumeName",
+            "columnName": "volumeName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mediaStoreVersion",
+            "columnName": "mediaStoreVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastGeneration",
+            "columnName": "lastGeneration",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "volumeName"
+          ]
+        }
+      },
+      {
+        "tableName": "scan_state",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `lastStartedAt` INTEGER, `lastCompletedAt` INTEGER, `lastWasFull` INTEGER NOT NULL, `lastAccess` TEXT, `lastError` TEXT, `lastItemCount` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastStartedAt",
+            "columnName": "lastStartedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastCompletedAt",
+            "columnName": "lastCompletedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastWasFull",
+            "columnName": "lastWasFull",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAccess",
+            "columnName": "lastAccess",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "lastError",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastItemCount",
+            "columnName": "lastItemCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c2547885924830d62fd79ffaae858dbb')"
+    ]
+  }
+}
