@@ -52,6 +52,57 @@ interface MediaDao {
     )
     fun observeGridItems(type: MediaType, sort: Int): Flow<List<MediaGridItem>>
 
+    /** Capturas de pantalla que no pertenecen a ningún grupo de capturas similares. */
+    @Query(
+        """
+        SELECT id, mediaType, contentUri, displayName, sizeBytes, durationMs, sortDateMs, dateModifiedMs
+        FROM media_items
+        WHERE mediaType = 'PHOTO' AND isScreenshot = 1
+          AND id NOT IN (SELECT sm.mediaId FROM similar_members sm
+                         JOIN similar_groups g ON g.id = sm.groupId WHERE g.kind = 'SCREENSHOT')
+        ORDER BY
+            CASE WHEN :sort = 0 THEN sortDateMs END DESC,
+            CASE WHEN :sort = 1 THEN sortDateMs END ASC,
+            CASE WHEN :sort = 2 THEN sizeBytes END DESC,
+            CASE WHEN :sort = 3 THEN displayName END COLLATE NOCASE ASC,
+            id DESC
+        """
+    )
+    fun observeOtherScreenshots(sort: Int): Flow<List<MediaGridItem>>
+
+    /** Fotos en carpetas de apps de chat (inferido). */
+    @Query(
+        """
+        SELECT id, mediaType, contentUri, displayName, sizeBytes, durationMs, sortDateMs, dateModifiedMs
+        FROM media_items
+        WHERE mediaType = 'PHOTO' AND chatApp IS NOT NULL
+        ORDER BY
+            CASE WHEN :sort = 0 THEN sortDateMs END DESC,
+            CASE WHEN :sort = 1 THEN sortDateMs END ASC,
+            CASE WHEN :sort = 2 THEN sizeBytes END DESC,
+            CASE WHEN :sort = 3 THEN displayName END COLLATE NOCASE ASC,
+            id DESC
+        """
+    )
+    fun observeChatPhotos(sort: Int): Flow<List<MediaGridItem>>
+
+    /** Totales de "Otras capturas" y "Fotos de chat" para Inicio. */
+    @Query(
+        """
+        SELECT
+          COALESCE(SUM(CASE WHEN mediaType = 'PHOTO' AND isScreenshot = 1 AND id NOT IN
+              (SELECT sm.mediaId FROM similar_members sm JOIN similar_groups g ON g.id = sm.groupId
+               WHERE g.kind = 'SCREENSHOT') THEN 1 ELSE 0 END), 0) AS otherScreenshotCount,
+          COALESCE(SUM(CASE WHEN mediaType = 'PHOTO' AND isScreenshot = 1 AND id NOT IN
+              (SELECT sm.mediaId FROM similar_members sm JOIN similar_groups g ON g.id = sm.groupId
+               WHERE g.kind = 'SCREENSHOT') THEN COALESCE(sizeBytes, 0) ELSE 0 END), 0) AS otherScreenshotBytes,
+          COALESCE(SUM(CASE WHEN mediaType = 'PHOTO' AND chatApp IS NOT NULL THEN 1 ELSE 0 END), 0) AS chatCount,
+          COALESCE(SUM(CASE WHEN mediaType = 'PHOTO' AND chatApp IS NOT NULL THEN COALESCE(sizeBytes, 0) ELSE 0 END), 0) AS chatBytes
+        FROM media_items
+        """
+    )
+    fun observeExtraTotals(): Flow<ExtraTotals>
+
     @Query("SELECT * FROM media_items WHERE id = :id")
     fun observeItem(id: Long): Flow<MediaItemEntity?>
 }

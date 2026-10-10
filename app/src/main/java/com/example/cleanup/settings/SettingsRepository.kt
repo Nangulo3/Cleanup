@@ -23,6 +23,7 @@ class SettingsRepository(context: Context) {
     private object Keys {
         val THEME = stringPreferencesKey("theme_mode")
         val DELETION_MODE = stringPreferencesKey("deletion_mode")
+        val SIMILARITY = stringPreferencesKey("similarity_level")
     }
 
     val settings: Flow<AppSettings> = dataStore.data
@@ -35,6 +36,8 @@ class SettingsRepository(context: Context) {
                 themeMode = prefs[Keys.THEME].toEnumOrNull<ThemeMode>() ?: AppSettings().themeMode,
                 deletionMode = prefs[Keys.DELETION_MODE].toEnumOrNull<DeletionMode>()
                     ?: AppSettings().deletionMode,
+                similarityLevel = prefs[Keys.SIMILARITY].toEnumOrNull<SimilarityLevel>()
+                    ?: AppSettings().similarityLevel,
             )
         }
 
@@ -44,6 +47,10 @@ class SettingsRepository(context: Context) {
 
     suspend fun setDeletionMode(mode: DeletionMode) {
         dataStore.edit { it[Keys.DELETION_MODE] = mode.name }
+    }
+
+    suspend fun setSimilarityLevel(level: SimilarityLevel) {
+        dataStore.edit { it[Keys.SIMILARITY] = level.name }
     }
 }
 

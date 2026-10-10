@@ -6,6 +6,7 @@ import com.example.cleanup.deletion.MarkCandidate
 import com.example.cleanup.deletion.TrashRepository
 import com.example.cleanup.detection.DuplicateGroup
 import com.example.cleanup.detection.DuplicateGrouping
+import com.example.cleanup.detection.DuplicateStatusData
 import com.example.cleanup.domain.model.DeletionSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -46,6 +47,9 @@ class DuplicatesRepository(
             surplusBytes = groups.sumOf { it.surplusBytes },
         )
     }
+
+    /** Por qué un archivo es o no duplicado exacto (diagnóstico del visor). */
+    fun observeStatus(mediaId: Long): Flow<DuplicateStatusData?> = dao.observeDuplicateStatus(mediaId)
 
     suspend fun setKeeper(groupKey: String, mediaId: Long) {
         dao.upsertKeeper(DuplicateKeeperEntity(groupKey, mediaId, clock()))

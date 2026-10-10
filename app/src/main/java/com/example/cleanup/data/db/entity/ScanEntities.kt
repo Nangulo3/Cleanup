@@ -1,5 +1,6 @@
 package com.example.cleanup.data.db.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.cleanup.domain.model.MediaAccess
@@ -23,4 +24,6 @@ data class ScanStateEntity(
     val lastAccess: MediaAccess? = null,
     val lastError: String? = null,
     val lastItemCount: Int = 0,
+    /** Versión del clasificador con la que se clasificó el catálogo (si cambia, se reclasifica todo). */
+    @ColumnInfo(defaultValue = "0") val classifierVersion: Int = 0,
 )

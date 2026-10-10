@@ -238,6 +238,13 @@ private fun DuplicateGroupCard(
                 ),
                 style = MaterialTheme.typography.titleMedium,
             )
+            if (group.members.all { it.isScreenshot }) {
+                Text(
+                    stringResource(R.string.duplicates_screenshot_chip),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+            }
             Text(
                 keepReasonText(group.reason),
                 style = MaterialTheme.typography.bodySmall,

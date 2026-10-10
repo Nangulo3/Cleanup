@@ -26,6 +26,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.cleanup.LocalAppContainer
 import com.example.cleanup.data.db.dao.TrashSummary
+import com.example.cleanup.data.db.entity.SimilarKind
 import com.example.cleanup.domain.model.Category
 import com.example.cleanup.domain.model.MediaAccess
 import com.example.cleanup.ui.screens.duplicates.DuplicatesScreen
@@ -35,6 +36,7 @@ import com.example.cleanup.ui.screens.permission.MediaPermissionRequester
 import com.example.cleanup.ui.screens.permission.PermissionScreen
 import com.example.cleanup.ui.screens.permission.rememberMediaPermissionRequester
 import com.example.cleanup.ui.screens.settings.SettingsScreen
+import com.example.cleanup.ui.screens.similar.SimilarGroupsScreen
 import com.example.cleanup.ui.screens.swipe.SwipeReviewScreen
 import com.example.cleanup.ui.screens.swipe.SwipeScreen
 import com.example.cleanup.ui.screens.trash.TrashScreen
@@ -116,6 +118,15 @@ private fun MainNavigation(access: MediaAccess, requester: MediaPermissionReques
                 entry<CategoryKey> { key ->
                     when (key.category) {
                         Category.DUPLICATES -> DuplicatesScreen(
+                            onBack = { backStack.removeLastOrNull() },
+                            onOpenItem = { id -> backStack.add(MediaViewerKey(id)) },
+                        )
+                        Category.SIMILAR_PHOTOS, Category.SIMILAR_SCREENSHOTS, Category.SIMILAR_VIDEOS -> SimilarGroupsScreen(
+                            kind = when (key.category) {
+                                Category.SIMILAR_SCREENSHOTS -> SimilarKind.SCREENSHOT
+                                Category.SIMILAR_VIDEOS -> SimilarKind.VIDEO
+                                else -> SimilarKind.PHOTO
+                            },
                             onBack = { backStack.removeLastOrNull() },
                             onOpenItem = { id -> backStack.add(MediaViewerKey(id)) },
                         )

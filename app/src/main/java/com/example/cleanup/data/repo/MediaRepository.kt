@@ -1,5 +1,6 @@
 package com.example.cleanup.data.repo
 
+import com.example.cleanup.data.db.dao.ExtraTotals
 import com.example.cleanup.data.db.dao.MediaDao
 import com.example.cleanup.data.db.dao.MediaGridItem
 import com.example.cleanup.data.db.dao.ScanDao
@@ -21,11 +22,15 @@ class MediaRepository(
 
     val scanState: Flow<ScanStateEntity?> = scanDao.observeScanState()
 
+    val extraTotals: Flow<ExtraTotals> = mediaDao.observeExtraTotals()
+
     /** Elementos de una categoría plana. Las categorías de grupos llegan en fases siguientes. */
     fun observeCategoryItems(category: Category, sort: MediaSort): Flow<List<MediaGridItem>> =
         when (category) {
             Category.PHOTOS -> mediaDao.observeGridItems(MediaType.PHOTO, sort.sqlCode)
             Category.VIDEOS -> mediaDao.observeGridItems(MediaType.VIDEO, sort.sqlCode)
+            Category.OTHER_SCREENSHOTS -> mediaDao.observeOtherScreenshots(sort.sqlCode)
+            Category.CHAT_PHOTOS -> mediaDao.observeChatPhotos(sort.sqlCode)
             else -> flowOf(emptyList())
         }
 

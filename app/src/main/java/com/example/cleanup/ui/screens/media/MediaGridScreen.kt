@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
@@ -172,7 +173,12 @@ fun MediaGridScreen(
                 icon = category.icon(),
                 title = stringResource(R.string.grid_empty_title),
                 message = stringResource(
-                    if (category == Category.VIDEOS) R.string.grid_empty_videos else R.string.grid_empty_photos
+                    when (category) {
+                        Category.VIDEOS -> R.string.grid_empty_videos
+                        Category.CHAT_PHOTOS -> R.string.grid_empty_chat
+                        Category.OTHER_SCREENSHOTS -> R.string.grid_empty_screenshots
+                        else -> R.string.grid_empty_photos
+                    }
                 ),
                 modifier = Modifier.padding(padding),
             )
@@ -188,6 +194,16 @@ fun MediaGridScreen(
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
+                categoryNoteRes(category)?.let { note ->
+                    item(key = "note", span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            stringResource(note),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        )
+                    }
+                }
                 items(
                     items = state.items,
                     key = { it.id },
@@ -260,6 +276,13 @@ private fun GridMessageEffect(
         onConsumed()
         if (result == SnackbarResult.ActionPerformed) onUndo()
     }
+}
+
+/** Nota explicativa para categorías inferidas. */
+private fun categoryNoteRes(category: Category): Int? = when (category) {
+    Category.CHAT_PHOTOS -> R.string.grid_note_chat
+    Category.OTHER_SCREENSHOTS -> R.string.grid_note_other_screenshots
+    else -> null
 }
 
 private fun MediaSort.labelRes(): Int = when (this) {

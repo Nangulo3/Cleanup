@@ -10,8 +10,12 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
  */
 enum class DeletionMode { PERMANENT, SYSTEM_TRASH }
 
+/** Qué tan parecidas deben ser dos fotos para agruparlas como similares. */
+enum class SimilarityLevel { STRICT, NORMAL, BROAD }
+
 /** Preferencias locales de la app. Los valores por defecto se usan mientras DataStore carga. */
 data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.DARK,
     val deletionMode: DeletionMode = DeletionMode.PERMANENT,
+    val similarityLevel: SimilarityLevel = SimilarityLevel.NORMAL,
 )

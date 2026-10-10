@@ -16,6 +16,15 @@ enum class ScanPhase {
 
     /** SHA-256 completo de los que coinciden en la huella rápida. */
     HASH_FULL,
+
+    /** Firmas visuales de las fotos (para similares). */
+    PERCEPTUAL,
+
+    /** Fotogramas de los videos (para videos similares). */
+    VIDEO,
+
+    /** Agrupando fotos, capturas y videos similares. */
+    GROUPING,
 }
 
 /**

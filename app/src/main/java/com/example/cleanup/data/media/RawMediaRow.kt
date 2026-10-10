@@ -1,7 +1,10 @@
 package com.example.cleanup.data.media
 
 import com.example.cleanup.data.db.entity.MediaItemEntity
+import com.example.cleanup.domain.model.ClassificationInput
+import com.example.cleanup.domain.model.MediaClassifier
 import com.example.cleanup.domain.model.MediaType
+import com.example.cleanup.domain.model.ScreenInfo
 import java.time.Instant
 import java.time.ZoneId
 
@@ -40,11 +43,17 @@ object MediaRowMapper {
      * - todas las fechas pasan a milisegundos;
      * - la fecha para ordenar y agrupar por mes prefiere la de captura.
      */
-    fun toEntity(row: RawMediaRow, catalogedAt: Long, zone: ZoneId): MediaItemEntity {
+    fun toEntity(row: RawMediaRow, catalogedAt: Long, zone: ZoneId, screen: ScreenInfo? = null): MediaItemEntity {
         val dateTaken = row.dateTakenMs.positiveOrNull()
         val dateAdded = row.dateAddedSec.positiveOrNull()?.times(1000)
         val dateModified = row.dateModifiedSec.positiveOrNull()?.times(1000)
         val sortDate = dateTaken ?: dateModified ?: dateAdded ?: 0L
+        val width = row.width?.takeIf { it > 0 }
+        val height = row.height?.takeIf { it > 0 }
+        val classification = MediaClassifier.classify(
+            ClassificationInput(row.relativePath, row.displayName, row.mimeType, width, height, row.isVideo),
+            screen,
+        )
         return MediaItemEntity(
             id = row.id,
             mediaType = if (row.isVideo) MediaType.VIDEO else MediaType.PHOTO,
@@ -55,8 +64,8 @@ object MediaRowMapper {
             relativePath = row.relativePath?.takeIf { it.isNotBlank() },
             bucketName = row.bucketName?.takeIf { it.isNotBlank() },
             sizeBytes = row.size.positiveOrNull(),
-            width = row.width?.takeIf { it > 0 },
-            height = row.height?.takeIf { it > 0 },
+            width = width,
+            height = height,
             orientation = row.orientation,
             durationMs = if (row.isVideo) row.duration.positiveOrNull() else null,
             dateTakenMs = dateTaken,
@@ -66,6 +75,8 @@ object MediaRowMapper {
             sortDateMs = sortDate,
             monthKey = monthKey(sortDate, zone),
             catalogedAt = catalogedAt,
+            isScreenshot = classification.isScreenshot,
+            chatApp = classification.chatApp,
         )
     }
 

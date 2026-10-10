@@ -4,7 +4,7 @@ Aplicación Android personal para analizar, organizar y limpiar fotos y videos *
 teléfono**: duplicados exactos, fotos y videos similares, capturas de pantalla y un modo
 "Deslizar" para revisar mes a mes. Sin cuentas, anuncios, servidores ni límites.
 
-> Estado: **Fase 5** (duplicados exactos verificados por contenido). Ver el avance por fases abajo.
+> Estado: **Fase 7** (videos similares). Ver el avance por fases abajo.
 
 ## Requisitos
 
@@ -99,6 +99,17 @@ app/src/main/java/com/example/cleanup/
 
 La app nunca borra archivos en este proceso: solo actualiza su base de datos local.
 
+Tipos de análisis:
+
+| Cuándo | Qué hace |
+|---|---|
+| Automático (al abrir la app o al detectar cambios) | Incremental: solo lo nuevo o modificado. |
+| Botón **Analizar** | Relee todo el catálogo (segundos), reintenta archivos que fallaron y reutiliza huellas válidas. Corrige archivos que se leyeron mientras otra app los estaba guardando. |
+| Ajustes → **Volver a analizar todo** | Además borra las huellas (exactas, visuales y de video) y las recalcula desde cero. |
+
+Fases del escaneo: catálogo → huellas exactas (duplicados) → firmas visuales de fotos → firmas de
+videos → agrupación.
+
 ## Papelera de revisión y eliminación
 
 - **Marcar** (desde el visor o con selección múltiple en las cuadrículas) solo añade una marca en
@@ -157,16 +168,85 @@ la papelera se avisa si se borrarían **todas** las copias de algún grupo.
 Android oculta los datos GPS de las fotos al leerlas. Dos fotos que solo difieran en esos datos se
 consideran idénticas.
 
+## Capturas, fotos de chat y fotos similares
+
+**Capturas de pantalla**: se reconocen sumando señales (carpeta "Screenshots"/"Capturas" +3, nombre
+"Screenshot…"/"Captura…" +2, dimensiones iguales a la pantalla del teléfono +2, PNG +1; umbral 3), sin
+depender de una sola convención. Las capturas idénticas aparecen en Duplicados (marcadas como
+capturas), las parecidas en "Capturas similares" y el resto en "Otras capturas".
+
+**Fotos de chat**: se infieren por la carpeta (WhatsApp, Telegram, Signal, Messenger) o por el nombre
+típico de WhatsApp (`IMG-AAAAMMDD-WA…`). La pantalla indica que es una inferencia.
+
+**Fotos similares** (no idénticas):
+
+1. Para cada foto se calculan, sobre la miniatura del sistema (~256 px, ya orientada), un **pHash**
+   (DCT de 32×32 → 64 bits), un **dHash** de 64 bits y un **dHash de 256 bits**, además de un indicador
+   de imagen casi uniforme y la **nitidez** (varianza del laplaciano). Todo en luminancia: dos fotos con
+   colores parecidos pero distinta estructura no se parecen.
+2. Los duplicados exactos se cuentan como una sola foto (ya tienen su categoría).
+3. Fotos: se comparan las tomadas cerca en el tiempo (ventana según el nivel) exigiendo pHash **y**
+   dHash bajo el umbral, más una pasada global muy estricta (pHash ≤ 3) para copias casi idénticas de
+   otra fecha, indexada por fragmentos de 16 bits para no comparar todas contra todas.
+4. Capturas: todas contra todas con el hash de 256 bits, porque la interfaz de la app hace que dos
+   capturas distintas del mismo chat tengan hashes de 64 bits muy parecidos.
+5. Agrupación por **enlace completo**: un elemento entra a un grupo solo si se parece a todos sus
+   miembros, así no se forman cadenas A~B~C con A y C distintas. Las imágenes casi uniformes no se agrupan.
+6. Nada se preselecciona. La "sugerida" (la más nítida) es solo una ayuda; "Seleccionar todas menos la
+   sugerida" solo selecciona, y el usuario confirma con "Enviar a la papelera".
+
+Niveles (Ajustes → Fotos y videos similares; distancias de Hamming):
+
+| Nivel | Fotos (pHash / dHash / ventana) | Capturas (dHash 256 / pHash) |
+|---|---|---|
+| Más estricto | 6 / 8 / 2 h | 12 / 10 |
+| Normal | 10 / 12 / 6 h | 20 / 14 |
+| Más amplio | 14 / 16 / 24 h | 30 / 18 |
+
+Los umbrales son iniciales y deben calibrarse con fotos reales. **Limitaciones conocidas**: recortes
+fuertes, rotaciones o filtros intensos pueden no agruparse; fondos muy genéricos (cielo, pared) a veces
+quedan fuera porque se marcan como imágenes de poca información.
+
+## Videos similares
+
+Se comparan **secuencias de fotogramas**, nunca un solo fotograma:
+
+1. De cada video se extraen **8 fotogramas** repartidos entre el 10 % y el 90 % de la duración (se evitan
+   el principio y el final, que suelen ser negros o temblorosos) con `MediaMetadataRetriever`, usando el
+   fotograma clave más cercano (`OPTION_CLOSEST_SYNC`, rápido) escalado a 160 px. A cada fotograma se le
+   calcula pHash, dHash e indicador de poca información, igual que a las fotos.
+2. Se procesa **un video a la vez** (decodificar video consume memoria) y se guarda cada 4, así el
+   análisis se puede interrumpir y continuar. Los videos que no se pueden leer (formato no compatible,
+   archivo dañado) se cuentan y se muestran como aviso; "Analizar" los reintenta.
+3. Dos videos son similares si: duración compatible, misma proporción de imagen (teniendo en cuenta la
+   rotación) y suficientes fotogramas alineados parecidos (pHash **y** dHash bajo el umbral). Los
+   fotogramas casi uniformes (fundidos a negro) se ignoran; con menos de 3 fotogramas útiles no se agrupa.
+4. Las copias idénticas byte a byte siguen en Duplicados y cuentan como un solo video aquí.
+5. Agrupación por enlace completo, como en fotos. Nada se preselecciona; el "sugerido" es el de mayor
+   resolución, luego el de mayor tasa de datos (mejor calidad) y luego el más reciente.
+
+| Nivel | pHash / dHash por fotograma | Fotogramas que deben coincidir | Diferencia de duración |
+|---|---|---|---|
+| Más estricto | 6 / 8 | 85 % | 2 % (mín. 1 s) |
+| Normal | 10 / 12 | 75 % | 3 % (mín. 1 s) |
+| Más amplio | 14 / 16 | 60 % | 5 % (mín. 2 s) |
+
+**Casos que sí detecta**: el mismo video guardado con otra calidad o resolución (por ejemplo, reenviado
+por WhatsApp), dos grabaciones casi iguales de la misma escena. **Limitaciones**: videos recortados al
+principio o al final, editados, con cambio de velocidad, con partes reordenadas, con marcas de agua grandes
+o girados respecto al original no se reconocen. El primer análisis de una biblioteca con muchos videos
+tarda más que el de fotos (cada video se decodifica en 8 puntos).
+
 Historial de la base de datos: v1 catálogo · v2 papelera, deshacer y solicitudes · v3 decisiones de
-Deslizar · v4 huellas de contenido y copias elegidas (migraciones automáticas generadas por Room a
-partir de `app/schemas/`).
+Deslizar · v4 huellas de contenido y copias elegidas · v5 firmas visuales, grupos de similares y
+clasificación · v6 firmas de video (migraciones automáticas generadas por Room a partir de `app/schemas/`).
 
 ## Pruebas
 
 | Tipo | Qué cubre | Comando |
 |---|---|---|
-| Unitarias (JVM) | Permisos por versión, formatos, plan de escaneo, conversión de filas de MediaStore, conciliación de eliminaciones, reanudar en Deslizar, huellas SHA-256, planificación de hashes, sugerencia de copia | `.\gradlew.bat testDebugUnitTest` |
-| Instrumentadas | Consultas de Room, escaneo contra el MediaStore real, papelera y deshacer, decisiones de Deslizar, duplicados con archivos reales (copia exacta, cambio al final, cambio en el medio), migración 1→4 | `.\gradlew.bat connectedDebugAndroidTest` |
+| Unitarias (JVM) | Permisos por versión, formatos, plan de escaneo, conversión de filas de MediaStore, conciliación de eliminaciones, reanudar en Deslizar, huellas SHA-256, planificación de hashes, sugerencia de copia, clasificador de capturas/chat, firmas perceptuales con imágenes sintéticas, agrupación sin encadenamiento, comparación de videos por secuencias (duración, proporción y rotación, fotogramas uniformes, copias exactas, sugerencia) | `.\gradlew.bat testDebugUnitTest` |
+| Instrumentadas | Consultas de Room, escaneo contra el MediaStore real, papelera y deshacer, decisiones de Deslizar, duplicados con archivos reales (copia exacta, cambio al final, cambio en el medio), firmas con miniaturas reales (PNG vs JPEG), migración 1→6 | `.\gradlew.bat connectedDebugAndroidTest` |
 
 **Pruebas manuales de eliminación** (el diálogo de Android no se automatiza porque su texto cambia
 según el fabricante):
@@ -178,6 +258,12 @@ según el fabricante):
 - [ ] Borrar desde la galería un archivo que está en la papelera y abrir la papelera → se quita solo.
 - [ ] Modo "papelera del sistema" en Ajustes → el resultado dice "movidos" y no promete espacio liberado.
 
+**Pruebas manuales de videos similares** (crear videos de prueba en una prueba automática es poco fiable):
+
+- [ ] Grabar un video, reenviarlo a uno mismo por WhatsApp y guardarlo → aparecen juntos en "Videos similares"; el sugerido es el original (más resolución).
+- [ ] Dos videos distintos de la misma duración → no se agrupan.
+- [ ] Un video y una copia recortada → no se agrupan (limitación documentada).
+
 Las pruebas instrumentadas insertan imágenes propias en `Pictures/CleanupTest` y las borran al terminar.
 
 ## Avance por fases
@@ -187,8 +273,8 @@ Las pruebas instrumentadas insertan imágenes propias en `Pictures/CleanupTest` 
 - [x] Fase 2 — Catálogo MediaStore, escaneo incremental e Inicio
 - [x] Fase 3 — Papelera de revisión y eliminación segura
 - [x] Fase 4 — Deslizar fotos y videos
-- [x] Fase 5 — Duplicados exactos *(pendiente de verificar en dispositivo)*
-- [ ] Fase 6 — Capturas, fotos similares y fotos de chat
-- [ ] Fase 7 — Videos similares
+- [x] Fase 5 — Duplicados exactos
+- [x] Fase 6 — Capturas, fotos similares y fotos de chat *(pendiente de verificar y calibrar en dispositivo)*
+- [x] Fase 7 — Videos similares *(pendiente de verificar en dispositivo)*
 - [ ] Fase 8 — Ajustes, rendimiento y accesibilidad
 - [ ] Fase 9 — Verificación final y APK firmado

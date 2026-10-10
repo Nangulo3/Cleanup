@@ -38,10 +38,12 @@ import com.example.cleanup.LocalAppContainer
 import com.example.cleanup.R
 import com.example.cleanup.domain.model.MediaAccess
 import com.example.cleanup.settings.DeletionMode
+import com.example.cleanup.settings.SimilarityLevel
 import com.example.cleanup.settings.ThemeMode
 import com.example.cleanup.ui.components.AppIcons
 import com.example.cleanup.ui.components.SectionHeader
 import com.example.cleanup.ui.screens.permission.openAppSettings
+import com.example.cleanup.ui.screens.similar.levelLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +53,9 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val container = LocalAppContainer.current
-    val viewModel: SettingsViewModel = viewModel { SettingsViewModel(container.settingsRepository) }
+    val viewModel: SettingsViewModel = viewModel {
+        SettingsViewModel(container.settingsRepository, container.scanScheduler)
+    }
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -108,6 +112,33 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+
+            // Similitud
+            SectionHeader(stringResource(R.string.settings_section_similarity))
+            Column(Modifier.selectableGroup()) {
+                SimilarityLevel.entries.forEach { level ->
+                    RadioOptionRow(
+                        title = levelLabel(level),
+                        description = stringResource(level.descriptionRes()),
+                        selected = settings.similarityLevel == level,
+                        onClick = { viewModel.setSimilarityLevel(level) },
+                    )
+                }
+            }
+
+            // Análisis
+            SectionHeader(stringResource(R.string.settings_section_scan))
+            Text(
+                stringResource(R.string.settings_reanalyze_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(8.dp))
+            OutlinedButton(onClick = viewModel::reanalyzeAll) {
+                Icon(AppIcons.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.settings_reanalyze))
             }
 
             // Acceso
@@ -180,6 +211,12 @@ private fun RadioOptionRow(
             }
         }
     }
+}
+
+private fun SimilarityLevel.descriptionRes(): Int = when (this) {
+    SimilarityLevel.STRICT -> R.string.similarity_strict_desc
+    SimilarityLevel.NORMAL -> R.string.similarity_normal_desc
+    SimilarityLevel.BROAD -> R.string.similarity_broad_desc
 }
 
 private fun ThemeMode.labelRes(): Int = when (this) {

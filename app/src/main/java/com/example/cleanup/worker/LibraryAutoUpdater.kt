@@ -73,7 +73,7 @@ class LibraryAutoUpdater(
         accessRepository.refresh()
         if (accessRepository.access.value == MediaAccess.DENIED) return
         if (scanDao.scanState()?.lastCompletedAt == null) return
-        scheduler.enqueue(forceFull = false)
+        scheduler.enqueue(ScanMode.AUTO)
     }
 
     private companion object {

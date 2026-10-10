@@ -1,5 +1,6 @@
 package com.example.cleanup.data.db.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -44,4 +45,8 @@ data class MediaItemEntity(
     val monthKey: Int,
     /** Momento en que la app leyó esta fila por última vez. */
     val catalogedAt: Long,
+    /** Captura de pantalla según [com.example.cleanup.domain.model.MediaClassifier]. */
+    @ColumnInfo(defaultValue = "0") val isScreenshot: Boolean = false,
+    /** App de chat inferida por carpeta o nombre, o null. */
+    val chatApp: String? = null,
 )

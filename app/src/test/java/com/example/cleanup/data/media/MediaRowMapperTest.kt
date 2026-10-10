@@ -93,4 +93,15 @@ class MediaRowMapperTest {
         assertEquals(202610, MediaRowMapper.monthKey(epochMs, bogota))
         assertEquals(202611, MediaRowMapper.monthKey(epochMs, ZoneId.of("UTC")))
     }
+
+    @Test
+    fun `clasifica capturas y fotos de chat al catalogar`() {
+        val screenshot = row(width = 1080, height = 2340).copy(
+            relativePath = "DCIM/Screenshots/", displayName = "Screenshot_1.png", mimeType = "image/png",
+        )
+        val entity = MediaRowMapper.toEntity(screenshot, 0, bogota, com.example.cleanup.domain.model.ScreenInfo(1080, 2340))
+        assertEquals(true, entity.isScreenshot)
+        val chat = row().copy(relativePath = "Android/media/com.whatsapp/WhatsApp/Media/WhatsApp Images/")
+        assertEquals("WhatsApp", MediaRowMapper.toEntity(chat, 0, bogota).chatApp)
+    }
 }

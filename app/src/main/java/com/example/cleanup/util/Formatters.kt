@@ -34,6 +34,9 @@ object Formatters {
     fun count(value: Int, locale: Locale = Locale.getDefault()): String =
         String.format(locale, "%,d", value)
 
+    fun count(value: Long, locale: Locale = Locale.getDefault()): String =
+        String.format(locale, "%,d", value)
+
     /** Duración de video: "0:07", "12:34" o "1:02:03". */
     fun duration(ms: Long): String {
         val totalSeconds = (ms.coerceAtLeast(0) + 500) / 1000 // redondeo al segundo más cercano

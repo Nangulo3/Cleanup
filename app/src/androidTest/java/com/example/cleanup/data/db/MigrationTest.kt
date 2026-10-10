@@ -3,7 +3,12 @@ package com.example.cleanup.data.db
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.cleanup.data.db.dao.NewSimilarGroup
 import com.example.cleanup.data.db.entity.FingerprintEntity
+import com.example.cleanup.data.db.entity.SimilarGroupEntity
+import com.example.cleanup.data.db.entity.SimilarKind
+import com.example.cleanup.data.db.entity.VideoSignatureEntity
+import com.example.cleanup.settings.SimilarityLevel
 import com.example.cleanup.domain.model.DeletionSource
 import com.example.cleanup.domain.model.MediaType
 import com.example.cleanup.deletion.MarkCandidate
@@ -72,6 +77,38 @@ class MigrationTest {
                 listOf(FingerprintEntity(7, null, null, null, "q", "s", null, 0))
             )
             db.fingerprintDao().deleteOrphans()
+            // Tablas y columnas de la versión 5 (similares y clasificación).
+            db.similarDao().replaceGroups(
+                listOf(SimilarKind.PHOTO),
+                listOf(
+                    NewSimilarGroup(
+                        SimilarGroupEntity(
+                            kind = SimilarKind.PHOTO, level = SimilarityLevel.NORMAL, algorithmVersion = 1,
+                            suggestedId = 7, maxDistance = 0, createdAt = 0,
+                        ),
+                        listOf(7L),
+                    )
+                ),
+            )
+            assertEquals(1, db.similarDao().observeGroupRows(SimilarKind.PHOTO).first().size)
+            assertEquals(false, db.mediaDao().observeItem(7).first()?.isScreenshot)
+            // Tabla de la versión 6 (firmas de video).
+            db.similarDao().upsertVideoSignatures(
+                listOf(
+                    VideoSignatureEntity(
+                        mediaId = 7, sizeBytes = null, dateModifiedMs = null, generationModified = null,
+                        algorithmVersion = 1, durationMs = null, frameCount = 0, framePhashes = null,
+                        frameDhashes = null, lowInfoMask = 0, error = "VIDEO_UNREADABLE", computedAt = 0,
+                    ),
+                    VideoSignatureEntity(
+                        mediaId = 999, sizeBytes = null, dateModifiedMs = null, generationModified = null,
+                        algorithmVersion = 1, durationMs = null, frameCount = 0, framePhashes = null,
+                        frameDhashes = null, lowInfoMask = 0, error = "VIDEO_UNREADABLE", computedAt = 0,
+                    ),
+                )
+            )
+            db.similarDao().deleteVideoOrphans() // borra la 999, que no está en el catálogo
+            assertEquals(1, db.similarDao().observeVideoErrorCount().first())
         } finally {
             db.close()
         }

@@ -21,3 +21,11 @@ data class MediaGridItem(
     val sortDateMs: Long,
     val dateModifiedMs: Long?,
 )
+
+/** Totales de categorías derivadas (capturas sin grupo y fotos de chat). */
+data class ExtraTotals(
+    val otherScreenshotCount: Int = 0,
+    val otherScreenshotBytes: Long = 0,
+    val chatCount: Int = 0,
+    val chatBytes: Long = 0,
+)

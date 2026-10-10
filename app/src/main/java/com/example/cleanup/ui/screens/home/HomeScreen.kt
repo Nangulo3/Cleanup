@@ -35,6 +35,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cleanup.LocalAppContainer
 import com.example.cleanup.R
 import com.example.cleanup.domain.model.Category
+import com.example.cleanup.data.repo.SimilarSummary
 import com.example.cleanup.domain.model.MediaAccess
 import com.example.cleanup.ui.components.AppIcons
 import com.example.cleanup.ui.components.CategoryCard
@@ -65,6 +66,7 @@ fun HomeScreen(
             container.scanScheduler,
             container.trashRepository,
             container.duplicatesRepository,
+            container.similarRepository,
         )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -127,9 +129,20 @@ fun HomeScreen(
 
 @Composable
 private fun CategoryTile(category: Category, state: HomeUiState, onClick: () -> Unit) {
-    if (category == Category.DUPLICATES) {
-        DuplicatesTile(state, onClick)
-        return
+    when (category) {
+        Category.DUPLICATES -> { DuplicatesTile(state, onClick); return }
+        Category.SIMILAR_PHOTOS -> { SimilarTile(category, state.similarPhotos, state.hasScanned, onClick); return }
+        Category.SIMILAR_SCREENSHOTS -> { SimilarTile(category, state.similarScreenshots, state.hasScanned, onClick); return }
+        Category.SIMILAR_VIDEOS -> { SimilarTile(category, state.similarVideos, state.hasScanned, onClick); return }
+        Category.OTHER_SCREENSHOTS -> {
+            CountTile(category, state.extra.otherScreenshotCount, state.extra.otherScreenshotBytes, state.hasScanned, onClick)
+            return
+        }
+        Category.CHAT_PHOTOS -> {
+            CountTile(category, state.extra.chatCount, state.extra.chatBytes, state.hasScanned, onClick)
+            return
+        }
+        else -> Unit
     }
     val summary = when (category) {
         Category.PHOTOS -> state.photos
@@ -198,6 +211,46 @@ private fun DuplicatesTile(state: HomeUiState, onClick: () -> Unit) {
         secondaryLine = secondary,
         onClick = onClick,
         enabled = state.hasScanned,
+    )
+}
+
+/** Tarjeta de similares: grupos y cantidad de elementos. */
+@Composable
+private fun SimilarTile(category: Category, summary: SimilarSummary, hasScanned: Boolean, onClick: () -> Unit) {
+    val primary = when {
+        !hasScanned -> stringResource(R.string.category_not_scanned)
+        summary.groupCount == 0 -> stringResource(R.string.similar_none_short)
+        else -> pluralStringResource(R.plurals.duplicate_groups_count, summary.groupCount, Formatters.count(summary.groupCount))
+    }
+    val secondary = if (hasScanned && summary.groupCount > 0) {
+        pluralStringResource(R.plurals.items_count, summary.itemCount, Formatters.count(summary.itemCount))
+    } else {
+        null
+    }
+    CategoryCard(
+        title = stringResource(category.titleRes()),
+        icon = category.icon(),
+        primaryLine = primary,
+        secondaryLine = secondary,
+        onClick = onClick,
+        enabled = hasScanned,
+    )
+}
+
+/** Tarjeta de categoría plana derivada (otras capturas, fotos de chat): cantidad y tamaño. */
+@Composable
+private fun CountTile(category: Category, count: Int, bytes: Long, hasScanned: Boolean, onClick: () -> Unit) {
+    CategoryCard(
+        title = stringResource(category.titleRes()),
+        icon = category.icon(),
+        primaryLine = if (hasScanned) {
+            pluralStringResource(R.plurals.items_count, count, Formatters.count(count))
+        } else {
+            stringResource(R.string.category_not_scanned)
+        },
+        secondaryLine = if (hasScanned && count > 0) Formatters.bytes(bytes) else null,
+        onClick = onClick,
+        enabled = hasScanned && count > 0,
     )
 }
 
@@ -289,6 +342,17 @@ private fun ScanStatus(state: HomeUiState) {
                     Formatters.count(run.progress.processed),
                     Formatters.count(run.progress.total ?: 0),
                 )
+                ScanPhase.PERCEPTUAL -> stringResource(
+                    R.string.home_scan_perceptual,
+                    Formatters.count(run.progress.processed),
+                    Formatters.count(run.progress.total ?: 0),
+                )
+                ScanPhase.VIDEO -> stringResource(
+                    R.string.home_scan_video,
+                    Formatters.count(run.progress.processed),
+                    Formatters.count(run.progress.total ?: 0),
+                )
+                ScanPhase.GROUPING -> stringResource(R.string.home_scan_grouping)
             }
             Text(text, style = textStyle, color = textColor)
             Spacer(Modifier.height(8.dp))

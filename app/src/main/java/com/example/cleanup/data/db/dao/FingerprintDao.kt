@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.example.cleanup.data.db.entity.DuplicateKeeperEntity
 import com.example.cleanup.data.db.entity.FingerprintEntity
+import com.example.cleanup.detection.DuplicateStatusData
 import com.example.cleanup.domain.model.MediaType
 import kotlinx.coroutines.flow.Flow
 
@@ -40,6 +41,7 @@ data class DuplicateRow(
     val dateAddedMs: Long?,
     val dateModifiedMs: Long?,
     val relativePath: String?,
+    val isScreenshot: Boolean = false,
 )
 
 @Dao
@@ -83,7 +85,7 @@ interface FingerprintDao {
         """
         SELECT f.sha256 AS groupKey, m.id, m.mediaType, m.contentUri, m.displayName, m.mimeType,
                m.sizeBytes, m.width, m.height, m.durationMs, m.sortDateMs, m.dateTakenMs,
-               m.dateAddedMs, m.dateModifiedMs, m.relativePath
+               m.dateAddedMs, m.dateModifiedMs, m.relativePath, m.isScreenshot
         FROM media_items m
         JOIN media_fingerprints f ON f.mediaId = m.id
         WHERE f.sha256 IS NOT NULL
@@ -105,6 +107,35 @@ interface FingerprintDao {
         """
     )
     fun observeDuplicateRows(): Flow<List<DuplicateRow>>
+
+    /** Diagnóstico de un archivo para el visor (ver DuplicateStatusClassifier). */
+    @Query(
+        """
+        SELECT m.sizeBytes AS sizeBytes,
+               (SELECT COUNT(*) FROM media_items o
+                 WHERE o.mediaType = m.mediaType AND o.sizeBytes = m.sizeBytes AND o.id != m.id) AS sameSizeCount,
+               CASE WHEN f.mediaId IS NOT NULL
+                     AND f.sizeBytes IS m.sizeBytes
+                     AND f.dateModifiedMs IS m.dateModifiedMs
+                     AND f.generationModified IS m.generationModified
+                    THEN 1 ELSE 0 END AS fingerprintValid,
+               f.quickHash AS quickHash,
+               f.sha256 AS sha256,
+               f.hashError AS hashError,
+               (SELECT COUNT(*) FROM media_fingerprints f2 JOIN media_items m2 ON m2.id = f2.mediaId
+                 WHERE f.quickHash IS NOT NULL AND f2.quickHash = f.quickHash AND f2.mediaId != m.id
+                   AND f2.sizeBytes IS m2.sizeBytes AND f2.dateModifiedMs IS m2.dateModifiedMs
+                   AND f2.generationModified IS m2.generationModified) AS sameQuickCount,
+               (SELECT COUNT(*) FROM media_fingerprints f3 JOIN media_items m3 ON m3.id = f3.mediaId
+                 WHERE f.sha256 IS NOT NULL AND f3.sha256 = f.sha256 AND f3.mediaId != m.id
+                   AND f3.sizeBytes IS m3.sizeBytes AND f3.dateModifiedMs IS m3.dateModifiedMs
+                   AND f3.generationModified IS m3.generationModified) AS identicalCount
+        FROM media_items m
+        LEFT JOIN media_fingerprints f ON f.mediaId = m.id
+        WHERE m.id = :mediaId
+        """
+    )
+    fun observeDuplicateStatus(mediaId: Long): Flow<DuplicateStatusData?>
 
     @Query("SELECT * FROM duplicate_keepers")
     fun observeKeepers(): Flow<List<DuplicateKeeperEntity>>

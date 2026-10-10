@@ -25,16 +25,32 @@ class ScanWorker(appContext: Context, params: WorkerParameters) : CoroutineWorke
             // todo el catálogo local; por eso no se escanea.
             return Result.failure(workDataOf(KEY_FAILURE to ScanFailure.PERMISSION.name))
         }
-        val forceFull = inputData.getBoolean(KEY_FORCE_FULL, false)
+        val mode = inputData.getString(KEY_MODE)
+            ?.let { name -> ScanMode.entries.firstOrNull { it.name == name } }
+            ?: ScanMode.AUTO
+        val fullCatalog = mode != ScanMode.AUTO
         return try {
             // 1. Catálogo (metadatos de MediaStore).
-            container.catalogScanner.run(forceFull = forceFull, access = access) { progress ->
+            container.catalogScanner.run(forceFull = fullCatalog, access = access) { progress ->
                 setProgress(progress.toData())
             }
             // 2. Huellas de contenido para duplicados exactos (solo lo nuevo o cambiado).
-            container.hashScanner.run(retryErrors = forceFull) { progress ->
+            if (mode == ScanMode.FULL_RESET) container.database.fingerprintDao().deleteAll()
+            container.hashScanner.run(retryErrors = mode != ScanMode.AUTO) { progress ->
                 setProgress(progress.toData())
             }
+            // 3. Firmas visuales de las fotos (para similares).
+            if (mode == ScanMode.FULL_RESET) container.database.similarDao().deleteAllPerceptual()
+            container.perceptualScanner.run(retryErrors = mode != ScanMode.AUTO) { progress ->
+                setProgress(progress.toData())
+            }
+            // 4. Fotogramas de los videos (para videos similares), un video a la vez.
+            if (mode == ScanMode.FULL_RESET) container.database.similarDao().deleteAllVideoSignatures()
+            container.videoScanner.run(retryErrors = mode != ScanMode.AUTO) { progress ->
+                setProgress(progress.toData())
+            }
+            // 5. Agrupar similares con el nivel elegido en Ajustes.
+            container.similarGrouper.run { progress -> setProgress(progress.toData()) }
             Result.success()
         } catch (e: CancellationException) {
             throw e
@@ -50,7 +66,7 @@ class ScanWorker(appContext: Context, params: WorkerParameters) : CoroutineWorke
     }
 
     companion object {
-        const val KEY_FORCE_FULL = "force_full"
+        const val KEY_MODE = "mode"
         const val KEY_FAILURE = "failure"
         private const val TAG = "ScanWorker"
     }

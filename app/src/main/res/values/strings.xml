@@ -291,4 +291,69 @@
         <item quantity="many">Atención: incluye todas las copias de %1$s grupos de duplicados. No quedará ninguna copia de esos archivos.</item>
         <item quantity="other">Atención: incluye todas las copias de %1$s grupos de duplicados. No quedará ninguna copia de esos archivos.</item>
     </plurals>
+
+    <!-- Diagnóstico de duplicados y reanálisis -->
+    <string name="detail_size_exact">%1$s (%2$s bytes)</string>
+    <string name="detail_duplicates">Duplicados</string>
+    <string name="dup_status_unknown_size">Tamaño desconocido: no se puede comparar.</string>
+    <string name="dup_status_unique_size">Ningún otro archivo pesa exactamente lo mismo, así que no tiene copias idénticas. Si se parece a otra foto, aparecerá en “Fotos similares”.</string>
+    <string name="dup_status_pending">Hay archivos del mismo tamaño; se compararán en el próximo análisis.</string>
+    <string name="dup_status_read_error">No se pudo leer el archivo para compararlo.</string>
+    <string name="dup_status_different">Comparado: pesa lo mismo que otros archivos, pero su contenido es distinto.</string>
+    <plurals name="dup_status_duplicate">
+        <item quantity="one">Idéntico byte a byte a %1$s archivo.</item>
+        <item quantity="many">Idéntico byte a byte a %1$s archivos.</item>
+        <item quantity="other">Idéntico byte a byte a %1$s archivos.</item>
+    </plurals>
+    <string name="settings_section_scan">Análisis</string>
+    <string name="settings_reanalyze">Volver a analizar todo</string>
+    <string name="settings_reanalyze_desc">Borra las huellas calculadas y vuelve a comparar toda la biblioteca desde cero. No borra fotos ni cambia la papelera. El botón “Analizar” de Inicio ya relee todo el catálogo; usa esta opción solo si algo no se ve bien.</string>
+
+    <!-- Fase 6: similares, capturas y chat -->
+    <string name="home_scan_perceptual">Analizando fotos similares: %1$s de %2$s</string>
+    <string name="home_scan_grouping">Agrupando fotos y videos similares…</string>
+    <string name="similar_none_short">Sin grupos</string>
+    <string name="similar_subtitle">%1$s · %2$s</string>
+    <string name="similar_empty_title">No se encontraron fotos parecidas</string>
+    <string name="similar_empty_body">Con el nivel %1$s no hay grupos. Puedes probar un nivel más amplio en Ajustes.</string>
+    <string name="similar_info">Fotos que se parecen pero no son copias idénticas (nivel: %1$s). Nada está seleccionado: elige cuáles enviar a la papelera. “Sugerida” marca la más nítida, solo como ayuda.</string>
+    <string name="similar_group_title">%1$s · %2$s</string>
+    <string name="similar_group_size">%1$s en total</string>
+    <string name="similar_date_range">%1$s – %2$s</string>
+    <string name="similar_select_all_but_suggested">Seleccionar todas menos la sugerida</string>
+    <string name="similar_clear_selection">Quitar selección</string>
+    <string name="similar_suggested">Sugerida</string>
+    <string name="similarity_strict">Más estricto</string>
+    <string name="similarity_normal">Normal</string>
+    <string name="similarity_broad">Más amplio</string>
+    <string name="similarity_strict_desc">Solo fotos o videos casi iguales (ráfagas, el mismo archivo recomprimido).</string>
+    <string name="similarity_normal_desc">Tomas de la misma escena con pequeñas diferencias.</string>
+    <string name="similarity_broad_desc">Agrupa más, pero puede juntar elementos que no quieras comparar.</string>
+    <string name="settings_section_similarity">Fotos y videos similares</string>
+    <string name="grid_note_chat">Detectadas por la carpeta o el nombre de WhatsApp, Telegram, Signal o Messenger. Es una inferencia: revisa antes de eliminar.</string>
+    <string name="grid_note_other_screenshots">Capturas de pantalla que no tienen otras parecidas. Se reconocen por carpeta, nombre, dimensiones y formato.</string>
+    <string name="grid_empty_chat">No se detectaron fotos en carpetas de apps de chat.</string>
+    <string name="grid_empty_screenshots">No hay otras capturas de pantalla.</string>
+    <string name="duplicates_screenshot_chip">Capturas de pantalla</string>
+    <plurals name="similar_send_selected">
+        <item quantity="one">Enviar %1$s seleccionada a la papelera</item>
+        <item quantity="many">Enviar %1$s seleccionadas a la papelera</item>
+        <item quantity="other">Enviar %1$s seleccionadas a la papelera</item>
+    </plurals>
+    <!-- Fase 7: videos similares -->
+    <string name="home_scan_video">Analizando videos: %1$s de %2$s</string>
+    <string name="similar_videos_empty_title">No se encontraron videos parecidos</string>
+    <string name="similar_videos_info">Videos que se parecen pero no son copias idénticas (nivel: %1$s): por ejemplo, la misma escena grabada dos veces o el mismo video guardado con otra calidad. Nada está seleccionado. “Sugerido” marca el de mayor resolución, solo como ayuda.</string>
+    <string name="similar_suggested_video">Sugerido</string>
+    <string name="similar_select_all_but_suggested_video">Seleccionar todos menos el sugerido</string>
+    <plurals name="similar_send_selected_video">
+        <item quantity="one">Enviar %1$s seleccionado a la papelera</item>
+        <item quantity="many">Enviar %1$s seleccionados a la papelera</item>
+        <item quantity="other">Enviar %1$s seleccionados a la papelera</item>
+    </plurals>
+    <plurals name="videos_unreadable">
+        <item quantity="one">%1$s video no se pudo analizar (formato no compatible o archivo dañado). Pulsa Analizar para reintentar.</item>
+        <item quantity="many">%1$s videos no se pudieron analizar (formato no compatible o archivos dañados). Pulsa Analizar para reintentar.</item>
+        <item quantity="other">%1$s videos no se pudieron analizar (formato no compatible o archivos dañados). Pulsa Analizar para reintentar.</item>
+    </plurals>
 </resources>

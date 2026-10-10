@@ -8,6 +8,8 @@ import com.example.cleanup.data.media.MediaRowMapper
 import com.example.cleanup.data.media.MediaStoreSource
 import com.example.cleanup.data.media.RawMediaRow
 import com.example.cleanup.domain.model.MediaAccess
+import com.example.cleanup.domain.model.MediaClassifier
+import com.example.cleanup.domain.model.ScreenInfo
 import com.example.cleanup.domain.scan.ScanPlanner
 import com.example.cleanup.domain.scan.StoredVolume
 import java.time.ZoneId
@@ -30,6 +32,7 @@ class CatalogScanner(
     private val db: AppDatabase,
     private val clock: () -> Long = System::currentTimeMillis,
     private val zone: () -> ZoneId = ZoneId::systemDefault,
+    private val screen: () -> ScreenInfo? = { null },
 ) {
 
     suspend fun run(
@@ -46,16 +49,19 @@ class CatalogScanner(
         // Si cambió el nivel de acceso, se relee todo: obtener permiso sobre un archivo
         // no cambia su "generación", así que el modo incremental no lo detectaría.
         val accessChanged = previous?.lastAccess != access
+        // Si cambiaron las reglas de clasificación (capturas, chat) hay que reclasificar todo.
+        val classifierChanged = previous?.classifierVersion != MediaClassifier.VERSION
         val snapshots = source.volumeSnapshots()
         val stored = scanDao.volumes().associate {
             it.volumeName to StoredVolume(it.volumeName, it.mediaStoreVersion, it.lastGeneration)
         }
-        val plans = ScanPlanner.plan(forceFull || accessChanged, snapshots, stored)
+        val plans = ScanPlanner.plan(forceFull || accessChanged || classifierChanged, snapshots, stored)
 
         var rowsRead = 0
+        val screenInfo = screen()
         suspend fun save(batch: List<RawMediaRow>) {
             val zoneId = zone()
-            mediaDao.upsertAll(batch.map { MediaRowMapper.toEntity(it, startedAt, zoneId) })
+            mediaDao.upsertAll(batch.map { MediaRowMapper.toEntity(it, startedAt, zoneId, screenInfo) })
             rowsRead += batch.size
             onProgress(ScanProgressInfo(ScanPhase.CATALOG, rowsRead, null))
         }
@@ -98,6 +104,7 @@ class CatalogScanner(
                     lastAccess = access,
                     lastError = null,
                     lastItemCount = total,
+                    classifierVersion = MediaClassifier.VERSION,
                 )
             )
         }

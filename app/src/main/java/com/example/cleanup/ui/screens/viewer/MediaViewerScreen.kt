@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,6 +46,7 @@ import com.example.cleanup.LocalAppContainer
 import com.example.cleanup.R
 import com.example.cleanup.data.db.entity.MediaItemEntity
 import com.example.cleanup.data.media.MediaThumbnail
+import com.example.cleanup.detection.DuplicateStatus
 import com.example.cleanup.domain.model.MediaType
 import com.example.cleanup.ui.components.AppIcons
 import com.example.cleanup.ui.components.EmptyState
@@ -58,7 +60,12 @@ import com.example.cleanup.util.Formatters
 fun MediaViewerScreen(mediaId: Long, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val container = LocalAppContainer.current
     val viewModel: MediaViewerViewModel = viewModel {
-        MediaViewerViewModel(mediaId, container.mediaRepository, container.trashRepository)
+        MediaViewerViewModel(
+            mediaId,
+            container.mediaRepository,
+            container.trashRepository,
+            container.duplicatesRepository,
+        )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val title = (state as? MediaViewerUiState.Loaded)?.item?.displayName
@@ -91,6 +98,8 @@ fun MediaViewerScreen(mediaId: Long, onBack: () -> Unit, modifier: Modifier = Mo
             is MediaViewerUiState.Loaded -> ViewerContent(
                 item = current.item,
                 isPending = current.isPending,
+                duplicateStatus = current.duplicateStatus,
+                identicalCount = current.identicalCount,
                 onToggleMark = viewModel::toggleMark,
                 modifier = Modifier.padding(padding),
             )
@@ -102,6 +111,8 @@ fun MediaViewerScreen(mediaId: Long, onBack: () -> Unit, modifier: Modifier = Mo
 private fun ViewerContent(
     item: MediaItemEntity,
     isPending: Boolean,
+    duplicateStatus: DuplicateStatus?,
+    identicalCount: Int,
     onToggleMark: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -161,7 +172,9 @@ private fun ViewerContent(
             )
             DetailRow(
                 stringResource(R.string.detail_size),
-                item.sizeBytes?.let { Formatters.bytes(it) } ?: unknown,
+                item.sizeBytes?.let {
+                    stringResource(R.string.detail_size_exact, Formatters.bytes(it), Formatters.count(it))
+                } ?: unknown,
             )
             DetailRow(
                 stringResource(R.string.detail_dimensions),
@@ -179,6 +192,9 @@ private fun ViewerContent(
             }
             DetailRow(stringResource(R.string.detail_folder), item.relativePath ?: unknown)
             DetailRow(stringResource(R.string.detail_type), item.mimeType ?: unknown)
+            if (duplicateStatus != null) {
+                DetailRow(stringResource(R.string.detail_duplicates), duplicateStatusText(duplicateStatus, identicalCount))
+            }
 
             Spacer(Modifier.height(16.dp))
             OutlinedButton(onClick = openExternally, modifier = Modifier.fillMaxWidth()) {
@@ -226,6 +242,19 @@ private fun MarkForDeletionSection(isPending: Boolean, onToggleMark: () -> Unit)
             Text(stringResource(R.string.viewer_mark))
         }
     }
+}
+
+/** Explicación en palabras del estado de la comparación de duplicados exactos. */
+@Composable
+private fun duplicateStatusText(status: DuplicateStatus, identicalCount: Int): String = when (status) {
+    DuplicateStatus.UNKNOWN_SIZE -> stringResource(R.string.dup_status_unknown_size)
+    DuplicateStatus.UNIQUE_SIZE -> stringResource(R.string.dup_status_unique_size)
+    DuplicateStatus.PENDING -> stringResource(R.string.dup_status_pending)
+    DuplicateStatus.READ_ERROR -> stringResource(R.string.dup_status_read_error)
+    DuplicateStatus.DIFFERENT_CONTENT -> stringResource(R.string.dup_status_different)
+    DuplicateStatus.DUPLICATE -> pluralStringResource(
+        R.plurals.dup_status_duplicate, identicalCount, Formatters.count(identicalCount)
+    )
 }
 
 @Composable
