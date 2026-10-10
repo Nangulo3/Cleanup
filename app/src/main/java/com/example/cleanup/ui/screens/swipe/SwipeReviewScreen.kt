@@ -1,5 +1,7 @@
 package com.example.cleanup.ui.screens.swipe
 
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -258,7 +260,7 @@ private fun ReviewContent(
         ) {
             FilledTonalButton(
                 onClick = { scope.launch { cardState.flyOut(-1); onDelete() } },
-                modifier = Modifier.weight(1f).height(56.dp),
+                modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
@@ -273,7 +275,7 @@ private fun ReviewContent(
             }
             FilledTonalButton(
                 onClick = { scope.launch { cardState.flyOut(1); onKeep() } },
-                modifier = Modifier.weight(1f).height(56.dp),
+                modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                 colors = ButtonDefaults.filledTonalButtonColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -299,7 +301,8 @@ private fun ItemInfo(item: SwipeItem) {
             stringResource(R.string.swipe_item_details, item.displayName ?: unknown, size),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -376,13 +379,13 @@ private fun MonthCompleteContent(
         }
         Spacer(Modifier.height(24.dp))
         if (state.nextMonthWithPending != null) {
-            Button(onClick = onNextMonth, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            Button(onClick = onNextMonth, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
                 Text(stringResource(R.string.swipe_next_month, monthLabel(state.nextMonthWithPending)))
             }
             Spacer(Modifier.height(8.dp))
         }
         if (state.trashCount > 0) {
-            OutlinedButton(onClick = onOpenTrash, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            OutlinedButton(onClick = onOpenTrash, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
                 Text(stringResource(R.string.swipe_open_trash, Formatters.count(state.trashCount)))
             }
             Spacer(Modifier.height(8.dp))

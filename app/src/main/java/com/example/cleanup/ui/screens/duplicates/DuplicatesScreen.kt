@@ -1,5 +1,6 @@
 package com.example.cleanup.ui.screens.duplicates
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -127,7 +128,7 @@ fun DuplicatesScreen(onBack: () -> Unit, onOpenItem: (Long) -> Unit, modifier: M
                             .fillMaxWidth()
                             .navigationBarsPadding()
                             .padding(16.dp)
-                            .height(52.dp),
+                            .heightIn(min = 52.dp),
                     ) {
                         Icon(AppIcons.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
@@ -376,6 +377,7 @@ private fun MemberColumn(
                         else -> Color.White
                     },
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             if (member.mediaType == MediaType.VIDEO) {

@@ -92,7 +92,7 @@ fun PermissionScreen(requester: MediaPermissionRequester, modifier: Modifier = M
                     Spacer(Modifier.height(16.dp))
                     Button(
                         onClick = { context.openAppSettings() },
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                     ) {
                         Text(stringResource(R.string.permission_open_settings))
                     }
@@ -102,7 +102,7 @@ fun PermissionScreen(requester: MediaPermissionRequester, modifier: Modifier = M
                 } else {
                     Button(
                         onClick = requester::request,
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                     ) {
                         Icon(AppIcons.Lock, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.size(8.dp))

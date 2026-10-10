@@ -1,5 +1,7 @@
 package com.example.cleanup.worker
 
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.flow.first
 import android.content.Context
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -32,6 +34,19 @@ class ScanScheduler(context: Context) {
         // Manual: se encadena detrás del que esté en curso para que la petición del usuario no se pierda.
         val policy = if (mode == ScanMode.AUTO) ExistingWorkPolicy.KEEP else ExistingWorkPolicy.APPEND_OR_REPLACE
         workManager.enqueueUniqueWork(UNIQUE_WORK_NAME, policy, request)
+    }
+
+    /**
+     * Cancela el escaneo en curso o en espera y aguarda (máx. [timeoutMs]) a que WorkManager lo dé
+     * por terminado. El trabajo se detiene en el siguiente punto de control; lo que alcance a
+     * escribir después no hace daño porque el siguiente escaneo completo lo vuelve a conciliar.
+     */
+    suspend fun cancelAndWait(timeoutMs: Long = 10_000) {
+        workManager.cancelUniqueWork(UNIQUE_WORK_NAME)
+        withTimeoutOrNull(timeoutMs) {
+            workManager.getWorkInfosForUniqueWorkFlow(UNIQUE_WORK_NAME)
+                .first { infos -> infos.all { it.state.isFinished } }
+        }
     }
 
     val state: Flow<ScanRunState> =

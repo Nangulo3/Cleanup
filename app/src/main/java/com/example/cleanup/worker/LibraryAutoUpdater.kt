@@ -1,5 +1,7 @@
 package com.example.cleanup.worker
 
+import kotlinx.coroutines.flow.first
+import com.example.cleanup.settings.SettingsRepository
 import android.content.Context
 import android.database.ContentObserver
 import android.os.Handler
@@ -21,7 +23,8 @@ import kotlinx.coroutines.launch
  * - si cambia la biblioteca (foto nueva, borrado desde la galería) lo detecta con un
  *   ContentObserver y, tras 2 s sin más cambios, lanza otro.
  *
- * Solo actúa si ya se hizo al menos un análisis: el primero lo inicia el usuario.
+ * Solo actúa si ya se hizo al menos un análisis (el primero lo inicia el usuario) y si el
+ * análisis automático está activado en Ajustes.
  */
 @OptIn(FlowPreview::class)
 class LibraryAutoUpdater(
@@ -30,6 +33,7 @@ class LibraryAutoUpdater(
     private val accessRepository: MediaAccessRepository,
     private val scanDao: ScanDao,
     private val scheduler: ScanScheduler,
+    private val settings: SettingsRepository,
 ) {
     private val resolver = context.applicationContext.contentResolver
     private val changes = MutableSharedFlow<Unit>(
@@ -73,6 +77,7 @@ class LibraryAutoUpdater(
         accessRepository.refresh()
         if (accessRepository.access.value == MediaAccess.DENIED) return
         if (scanDao.scanState()?.lastCompletedAt == null) return
+        if (!settings.settings.first().autoScan) return
         scheduler.enqueue(ScanMode.AUTO)
     }
 

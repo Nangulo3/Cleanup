@@ -1,5 +1,6 @@
 package com.example.cleanup.ui.screens.viewer
 
+import androidx.compose.foundation.layout.heightIn
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -154,7 +155,7 @@ private fun ViewerContent(
                 // Coil decodifica la foto reducida al tamaño de la pantalla, no la original completa.
                 AsyncImage(
                     model = uri,
-                    contentDescription = item.displayName,
+                    contentDescription = item.displayName ?: stringResource(R.string.viewer_item_fallback),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -225,13 +226,13 @@ private fun MarkForDeletionSection(isPending: Boolean, onToggleMark: () -> Unit)
             )
         }
         Spacer(Modifier.height(8.dp))
-        OutlinedButton(onClick = onToggleMark, modifier = Modifier.fillMaxWidth().height(48.dp)) {
+        OutlinedButton(onClick = onToggleMark, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
             Text(stringResource(R.string.viewer_unmark))
         }
     } else {
         FilledTonalButton(
             onClick = onToggleMark,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,

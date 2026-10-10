@@ -356,4 +356,15 @@
         <item quantity="many">%1$s videos no se pudieron analizar (formato no compatible o archivos dañados). Pulsa Analizar para reintentar.</item>
         <item quantity="other">%1$s videos no se pudieron analizar (formato no compatible o archivos dañados). Pulsa Analizar para reintentar.</item>
     </plurals>
+    <!-- Fase 8: ajustes -->
+    <string name="settings_auto_scan">Analizar cambios automáticamente</string>
+    <string name="settings_auto_scan_desc">Al abrir la app y cuando agregas o borras fotos, analiza solo lo nuevo. Si lo desactivas, solo se analiza al pulsar Analizar.</string>
+    <string name="settings_clear">Borrar datos de la app</string>
+    <string name="settings_clear_desc">Deja la app como recién instalada y vuelve a analizar. Tus fotos y videos no se tocan.</string>
+    <string name="settings_clear_confirm_title">¿Borrar los datos de la app?</string>
+    <string name="settings_clear_confirm_body">Se borran los resultados del análisis, la papelera de revisión (los elementos vuelven a quedar sin marcar), el progreso de Deslizar y el historial para deshacer.\n\nNo se borra ninguna foto ni video del teléfono y se conservan tus ajustes. Después se analiza todo de nuevo.</string>
+    <string name="settings_clear_confirm_action">Borrar datos</string>
+    <string name="settings_clear_running">Borrando datos…</string>
+    <string name="settings_clear_done">Listo. Se borraron los datos y comenzó un análisis nuevo.</string>
+    <string name="settings_clear_failed">No se pudieron borrar los datos. Inténtalo de nuevo.</string>
 </resources>

@@ -18,4 +18,6 @@ data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.DARK,
     val deletionMode: DeletionMode = DeletionMode.PERMANENT,
     val similarityLevel: SimilarityLevel = SimilarityLevel.NORMAL,
+    /** Analizar solo lo nuevo al abrir la app y cuando cambia la biblioteca. */
+    val autoScan: Boolean = true,
 )

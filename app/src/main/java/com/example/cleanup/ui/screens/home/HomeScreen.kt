@@ -1,5 +1,7 @@
 package com.example.cleanup.ui.screens.home
 
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -75,9 +77,11 @@ fun HomeScreen(
         modifier = modifier,
         topBar = { TopAppBar(title = { Text(stringResource(R.string.home_title)) }) },
     ) { padding ->
+        // Adaptativo: 2 columnas en teléfonos, más en tabletas o en horizontal.
+        // Con texto muy grande (≥ 150 %) se usa una sola columna para que nada quede apretado.
+        val largeText = LocalDensity.current.fontScale >= 1.5f
         LazyVerticalGrid(
-            // Adaptativo: 2 columnas en teléfonos, más en tabletas o en horizontal.
-            columns = GridCells.Adaptive(minSize = 160.dp),
+            columns = if (largeText) GridCells.Fixed(1) else GridCells.Adaptive(minSize = 160.dp),
             contentPadding = PaddingValues(
                 start = 16.dp,
                 end = 16.dp,
@@ -310,7 +314,7 @@ private fun StorageSummaryCard(
             Button(
                 onClick = onAnalyze,
                 enabled = !state.isScanning && !state.isLoading,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
             ) {
                 Icon(AppIcons.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.size(8.dp))

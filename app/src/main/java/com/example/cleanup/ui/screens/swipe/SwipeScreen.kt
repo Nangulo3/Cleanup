@@ -1,5 +1,6 @@
 package com.example.cleanup.ui.screens.swipe
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -116,7 +117,7 @@ private fun OverallProgressCard(state: SwipeMonthsUiState, onResume: () -> Unit)
             Spacer(Modifier.height(16.dp))
             val resume = state.resumeMonth
             if (resume != null) {
-                Button(onClick = onResume, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                Button(onClick = onResume, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
                     Icon(AppIcons.Swipe, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(R.string.swipe_resume, monthLabel(resume)))

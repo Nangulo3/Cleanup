@@ -1,5 +1,6 @@
 package com.example.cleanup
 
+import com.example.cleanup.data.repo.AppDataCleaner
 import android.content.Context
 import android.view.WindowManager
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -69,7 +70,9 @@ class AppContainer(context: Context) {
         accessRepository = mediaAccessRepository,
         scanDao = database.scanDao(),
         scheduler = scanScheduler,
+        settings = settingsRepository,
     )
+    val appDataCleaner = AppDataCleaner(database, scanScheduler)
 }
 
 /** Tamaño completo de la pantalla en píxeles (para reconocer capturas por sus dimensiones). */

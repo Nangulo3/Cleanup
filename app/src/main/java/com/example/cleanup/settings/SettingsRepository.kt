@@ -1,5 +1,6 @@
 package com.example.cleanup.settings
 
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -24,6 +25,7 @@ class SettingsRepository(context: Context) {
         val THEME = stringPreferencesKey("theme_mode")
         val DELETION_MODE = stringPreferencesKey("deletion_mode")
         val SIMILARITY = stringPreferencesKey("similarity_level")
+        val AUTO_SCAN = booleanPreferencesKey("auto_scan")
     }
 
     val settings: Flow<AppSettings> = dataStore.data
@@ -38,6 +40,7 @@ class SettingsRepository(context: Context) {
                     ?: AppSettings().deletionMode,
                 similarityLevel = prefs[Keys.SIMILARITY].toEnumOrNull<SimilarityLevel>()
                     ?: AppSettings().similarityLevel,
+                autoScan = prefs[Keys.AUTO_SCAN] ?: AppSettings().autoScan,
             )
         }
 
@@ -51,6 +54,10 @@ class SettingsRepository(context: Context) {
 
     suspend fun setSimilarityLevel(level: SimilarityLevel) {
         dataStore.edit { it[Keys.SIMILARITY] = level.name }
+    }
+
+    suspend fun setAutoScan(enabled: Boolean) {
+        dataStore.edit { it[Keys.AUTO_SCAN] = enabled }
     }
 }
 

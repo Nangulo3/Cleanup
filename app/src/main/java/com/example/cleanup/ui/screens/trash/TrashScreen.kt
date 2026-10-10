@@ -1,5 +1,6 @@
 package com.example.cleanup.ui.screens.trash
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -289,17 +290,17 @@ private fun TrashBottomBar(state: TrashUiState, onDelete: () -> Unit, onUnmark: 
                     Text(stringResource(R.string.trash_waiting_system))
                 }
             } else if (state.selected.isEmpty()) {
-                Button(onClick = onDelete, colors = destructive, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                Button(onClick = onDelete, colors = destructive, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) {
                     Icon(AppIcons.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(deleteAllLabel(state.mode)))
                 }
             } else {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedButton(onClick = onUnmark, modifier = Modifier.weight(1f).height(52.dp)) {
+                    OutlinedButton(onClick = onUnmark, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) {
                         Text(stringResource(R.string.trash_unmark_selected))
                     }
-                    Button(onClick = onDelete, colors = destructive, modifier = Modifier.weight(1f).height(52.dp)) {
+                    Button(onClick = onDelete, colors = destructive, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) {
                         Text(stringResource(R.string.trash_delete_selected))
                     }
                 }

@@ -4,7 +4,7 @@ Aplicación Android personal para analizar, organizar y limpiar fotos y videos *
 teléfono**: duplicados exactos, fotos y videos similares, capturas de pantalla y un modo
 "Deslizar" para revisar mes a mes. Sin cuentas, anuncios, servidores ni límites.
 
-> Estado: **Fase 7** (videos similares). Ver el avance por fases abajo.
+> Estado: **Fase 8** (ajustes, rendimiento y accesibilidad). Ver el avance por fases abajo.
 
 ## Requisitos
 
@@ -68,6 +68,44 @@ Todo el análisis ocurre en el teléfono. No se suben fotos, videos, miniaturas,
 archivo ni metadatos. La copia de seguridad en la nube y la transferencia entre dispositivos
 están desactivadas para los datos de la app.
 
+**Registros (logs)**: en la versión release el código de la app no escribe nada en Logcat (WorkManager
+puede registrar mensajes de estado del trabajo, sin datos de tus archivos). En debug solo se registra el
+error del escaneo y los avisos de StrictMode.
+
+## Ajustes
+
+| Sección | Opciones |
+|---|---|
+| Apariencia | Tema del sistema, claro u oscuro. |
+| Eliminación | Eliminar definitivamente (`createDeleteRequest`) o mover a la papelera del sistema (`createTrashRequest`), con aviso de que la eliminación puede ser irreversible. |
+| Fotos y videos similares | Nivel más estricto, normal o más amplio (vuelve a agrupar reutilizando las firmas). |
+| Análisis | **Analizar cambios automáticamente** (activado por defecto; al desactivarlo solo se analiza con el botón Analizar). **Volver a analizar todo** (recalcula huellas). **Borrar datos de la app**: vacía la base de datos local (resultados, papelera de revisión, progreso de Deslizar, historial para deshacer) y vuelve a analizar; no toca fotos, videos ni ajustes. |
+| Acceso | Estado del permiso, ampliar acceso parcial y abrir los ajustes de Android. |
+| Privacidad y Acerca de | Procesamiento local, sin cuentas ni servidores; versión de la app. |
+
+## Rendimiento
+
+- Todo lo pesado (MediaStore, hashes, miniaturas, fotogramas, base de datos) corre fuera del hilo
+  principal: WorkManager para el escaneo y corrutinas en `Dispatchers.IO` para el resto.
+- En **debug** se activa **StrictMode**: Logcat avisa (etiqueta `StrictMode`) si se lee o escribe disco
+  en el hilo principal, si se olvida cerrar un cursor o archivo, o si se comparte una URI sin permiso
+  temporal. Solo registra; no cierra la app. Algunos avisos vienen de librerías al arrancar
+  (WorkManager abre su base de datos), no de la app.
+- WorkManager sin servicio en primer plano detiene un trabajo a los ~10 minutos. Como cada lote se
+  guarda al momento, el escaneo continúa donde quedó cuando Android lo reanuda.
+
+## Accesibilidad
+
+- Todas las acciones tienen etiqueta para TalkBack; las miniaturas anuncian nombre, tamaño y estado
+  (seleccionada, en la papelera, sugerida). En Deslizar, la tarjeta tiene acciones personalizadas
+  **Conservar** y **Eliminar** (menú de acciones de TalkBack), además de los botones visibles.
+- Las opciones de Ajustes se anuncian como botón de opción o interruptor, y los títulos de sección
+  como encabezados (se puede saltar entre ellos con TalkBack).
+- Zonas táctiles de al menos 48 dp.
+- Texto grande: los botones crecen en alto en vez de cortar el texto y, con fuente ≥ 150 %, Inicio
+  muestra las tarjetas en una columna.
+- La selección no depende solo del color: hay casilla visible y borde.
+
 ## Estructura
 
 ```
@@ -77,8 +115,8 @@ app/src/main/java/com/example/cleanup/
   domain/      modelos y reglas puras (p. ej. ScanPlanner, SwipeResume)
   data/media/  permisos, consultas a MediaStore y miniaturas del sistema
   data/db/     Room: entidades, DAOs y base de datos (esquema exportado en app/schemas/)
-  data/repo/   repositorios que consume la interfaz
-  detection/   huellas de contenido, planificación de hashes y sugerencia de copia a conservar
+  data/repo/   repositorios que consume la interfaz (y AppDataCleaner para "Borrar datos de la app")
+  detection/   huellas exactas, firmas visuales de fotos y videos, agrupación y sugerencias
   deletion/    Papelera de revisión, deshacer y coordinación de la eliminación con Android
   worker/      escaneo en segundo plano (WorkManager) y actualización automática
   settings/    preferencias locales (DataStore)
@@ -264,6 +302,15 @@ según el fabricante):
 - [ ] Dos videos distintos de la misma duración → no se agrupan.
 - [ ] Un video y una copia recortada → no se agrupan (limitación documentada).
 
+**Pruebas manuales de Ajustes, accesibilidad y rendimiento:**
+
+- [ ] Desactivar "Analizar cambios automáticamente", tomar una foto y volver a la app → no se analiza hasta pulsar Analizar.
+- [ ] "Borrar datos de la app" → cancelar no cambia nada; confirmar vacía la papelera de revisión y Deslizar, Inicio vuelve a analizar y la galería del teléfono sigue igual.
+- [ ] TalkBack activado: recorrer Inicio, una cuadrícula, Duplicados, Similares, Deslizar (acciones Conservar/Eliminar) y la Papelera; todo se anuncia con sentido.
+- [ ] Ajustes de Android → tamaño de fuente al máximo: ningún botón corta el texto e Inicio usa una columna.
+- [ ] Ejecutar la versión debug con Logcat filtrado por `StrictMode` mientras se navega y se analiza: no debe haber avisos de `com.example.cleanup` en el hilo principal.
+- [ ] Biblioteca grande (miles de fotos y algunos videos pesados): el desplazamiento de las cuadrículas es fluido y el escaneo avanza sin bloquear la interfaz.
+
 Las pruebas instrumentadas insertan imágenes propias en `Pictures/CleanupTest` y las borran al terminar.
 
 ## Avance por fases
@@ -276,5 +323,5 @@ Las pruebas instrumentadas insertan imágenes propias en `Pictures/CleanupTest` 
 - [x] Fase 5 — Duplicados exactos
 - [x] Fase 6 — Capturas, fotos similares y fotos de chat *(pendiente de verificar y calibrar en dispositivo)*
 - [x] Fase 7 — Videos similares *(pendiente de verificar en dispositivo)*
-- [ ] Fase 8 — Ajustes, rendimiento y accesibilidad
+- [x] Fase 8 — Ajustes, rendimiento y accesibilidad *(pendiente de verificar en dispositivo)*
 - [ ] Fase 9 — Verificación final y APK firmado

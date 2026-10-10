@@ -1,5 +1,6 @@
 package com.example.cleanup.ui.screens.similar
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -157,7 +158,7 @@ fun SimilarGroupsScreen(
                             .fillMaxWidth()
                             .navigationBarsPadding()
                             .padding(16.dp)
-                            .height(52.dp),
+                            .heightIn(min = 52.dp),
                     ) {
                         Icon(AppIcons.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
@@ -423,7 +424,7 @@ private fun SimilarTile(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
             )
-            IconButton(onClick = onOpen, modifier = Modifier.size(36.dp)) {
+            IconButton(onClick = onOpen) { // 48 dp: tamaño táctil mínimo
                 Icon(AppIcons.OpenInNew, contentDescription = stringResource(R.string.action_view), modifier = Modifier.size(18.dp))
             }
         }

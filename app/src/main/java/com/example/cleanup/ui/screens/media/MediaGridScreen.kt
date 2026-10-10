@@ -1,5 +1,6 @@
 package com.example.cleanup.ui.screens.media
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -236,12 +237,12 @@ private fun SelectionBottomBar(state: MediaGridUiState, onMark: () -> Unit, onUn
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             if (state.selectedPendingCount > 0) {
-                OutlinedButton(onClick = onUnmark, modifier = Modifier.weight(1f).height(52.dp)) {
+                OutlinedButton(onClick = onUnmark, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) {
                     Text(stringResource(R.string.trash_unmark_selected))
                 }
             }
             if (state.selectedNotPendingCount > 0) {
-                Button(onClick = onMark, modifier = Modifier.weight(1f).height(52.dp)) {
+                Button(onClick = onMark, modifier = Modifier.weight(1f).heightIn(min = 52.dp)) {
                     Icon(AppIcons.Delete, contentDescription = null)
                     Text(stringResource(R.string.grid_send_to_trash), modifier = Modifier.padding(start = 8.dp))
                 }
